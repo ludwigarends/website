@@ -417,6 +417,8 @@ footer, .vcopy { font-weight: 500; }
 .card .am:hover .w, .card .am:focus-visible .w { color: #000; }
 .card .fb .w { text-decoration: underline; text-decoration-thickness: 0.08em; text-underline-offset: 0.14em; }
 .card .fn { font-size: 0.78rem; color: var(--muted); }
+/* 18.11.: contact: only the e-mail address (mailto) and the share button under the drawing */
+.card .am2 { font-size: 1.1rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
 
 /* 18.11.: index: hovering a title shows its cover right next to it, the title turns grey */
 #ixp { position: fixed; left: 0; top: 0; z-index: 45; pointer-events: none; opacity: 0; transition: opacity 0.12s; transform-origin: 30% 20%; }
@@ -500,6 +502,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     fname: { en: 'your email address', de: 'deine email-adresse' },
     fsub: { en: 'subject', de: 'betreff' },
     fsend: { en: 'send', de: 'senden' },
+    fshare: { en: 'share artwork', de: 'kunstwerk teilen' },
     fnote: { en: 'opens your mail app', de: 'öffnet dein mailprogramm' },
     fsending: { en: 'sending …', de: 'wird gesendet …' },
     fsent: { en: 'sent, thank you', de: 'gesendet, danke' },
@@ -782,7 +785,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     var sw = cols.map(function (c) { return c.length === 1 ? '<i class="gp"></i>' : '<button type="button" class="cs" data-pen="' + c[0] + '" style="background:' + c[1] + '" aria-label="' + c[0] + '"></button>'; }).join('');
     var bs = '';
     function ln(id, k) { return '<label class="ln" for="' + id + '"><input id="' + id + '" type="' + (id === 'f-name' ? 'email' : 'text') + '" autocomplete="off" placeholder="' + ui(k) + '"></label>'; }
-    return '<main><div class="card"><a class="am" href="mailto:' + ABOUT.mail + '"><span class="w">' + ABOUT.mail + '</span></a><div class="board"><canvas id="bd" aria-label="drawing board"></canvas><div class="pal" role="group" aria-label="colour and brush">' + sw + '<span class="pg"></span>' + bs + '<button type="button" class="cc">' + ui('fnew') + '</button></div></div><form class="addr" id="cf" novalidate><div class="al"><label class="ln ta" for="f-topic"><textarea id="f-topic" rows="1" placeholder="' + ui('ftopic') + '"></textarea></label>' + ln('f-name', 'fname') + ln('f-sub', 'fsub') + '<span class="fs"><button type="submit" class="fb">' + '<span class="w">' + ui('fsend') + ' ' + arr('r', true) + '</span></button><span class="fn" aria-live="polite"></span></span></div></form></div></main>';
+    return '<main><div class="card"><div class="board"><canvas id="bd" aria-label="drawing board"></canvas><div class="pal" role="group" aria-label="colour and brush">' + sw + '<span class="pg"></span>' + bs + '<button type="button" class="cc">' + ui('fnew') + '</button></div></div><form class="addr" id="cf" novalidate><div class="al"><a class="am2" href="mailto:' + ABOUT.mail + '"><span class="w">' + ABOUT.mail + '</span></a><span class="fs"><button type="submit" class="fb">' + '<span class="w">' + ui('fshare') + ' ' + arr('r', true) + '</span></button><span class="fn" aria-live="polite"></span></span></div></form></div></main>';
   }
 
   var lastRoute = null, app = document.getElementById('app');
@@ -930,33 +933,25 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       e.preventDefault();
       var v = function (id) { return document.getElementById(id).value; };
       var note = cf.querySelector('.fn');
-      if (FORM_ENDPOINT) {
-        /* 18.11.: classic multipart POST (FormSubmit documents attachments only for this, the ajax call hung) */
-        var out = document.createElement('canvas'), sc = Math.min(1, 900 / c.width);
-        out.width = Math.round(c.width * sc); out.height = Math.round(c.height * sc);
-        var ox = out.getContext('2d'); ox.fillStyle = '#fff'; ox.fillRect(0, 0, out.width, out.height);
-        ox.drawImage(c, 0, 0, out.width, out.height);
-        if (note) note.textContent = ui('fsending');
-        out.toBlob(function (blob) {
-          var f = document.createElement('form');
-          f.method = 'POST'; f.enctype = 'multipart/form-data'; f.acceptCharset = 'UTF-8'; f.style.display = 'none';
-          f.action = FORM_ENDPOINT.replace('/ajax/', '/');
-          var add = function (k, val) { var i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = val; f.appendChild(i); };
-          add('_template', 'table'); add('_captcha', 'false'); add('_next', location.origin + location.pathname + '?sent=1#contact');
-          add('_subject', 'postcard: ' + (v('f-sub') || v('f-topic')).slice(0, 80));
-          add('email', v('f-name')); add('subject', v('f-sub')); add('message', v('f-topic'));
-          var hp = document.createElement('input'); hp.type = 'text'; hp.name = '_honey'; f.appendChild(hp);
-          if (strokes.length && blob) {
-            try {
-              var fi = document.createElement('input'); fi.type = 'file'; fi.name = 'attachment';
-              var dt = new DataTransfer(); dt.items.add(new File([blob], 'postcard.jpg', { type: 'image/jpeg' })); fi.files = dt.files; f.appendChild(fi);
-            } catch (x) {}
-          }
-          document.body.appendChild(f); f.submit();
-        }, 'image/jpeg', 0.85);
-        return;
+      /* 18.11.: share: the drawing as JPG via the share sheet (mail, messages …); without a share sheet the JPG is downloaded and the mail program opens */
+      var out = document.createElement('canvas'), sc = Math.min(1, 1200 / c.width);
+      out.width = Math.round(c.width * sc); out.height = Math.round(c.height * sc);
+      var ox = out.getContext('2d'); ox.fillStyle = '#fff'; ox.fillRect(0, 0, out.width, out.height);
+      ox.drawImage(c, 0, 0, out.width, out.height);
+      var url = out.toDataURL('image/jpeg', 0.88), bin = atob(url.split(',')[1]), arrb = new Uint8Array(bin.length);
+      for (var q = 0; q < bin.length; q++) arrb[q] = bin.charCodeAt(q);
+      var file = new File([arrb], 'postcard.jpg', { type: 'image/jpeg' });
+      var mail = 'mailto:' + ABOUT.mail + '?subject=' + encodeURIComponent('postcard');
+      var fallback = function () {
+        var dl = document.createElement('a'); dl.href = url; dl.download = 'postcard.jpg'; document.body.appendChild(dl); dl.click(); dl.remove();
+        setTimeout(function () { window.location.href = mail; }, 400);
+      };
+      if (navigator.canShare && navigator.share) {
+        var data = { files: [file], title: 'postcard' };
+        var ok = false; try { ok = navigator.canShare(data); } catch (x) {}
+        if (ok) { navigator.share(data).catch(function (err) { if (!err || err.name !== 'AbortError') fallback(); }); return; }
       }
-      window.location.href = 'mailto:' + ABOUT.mail + '?subject=' + encodeURIComponent(v('f-sub') || v('f-topic')) + '&body=' + encodeURIComponent(v('f-topic') + '\n\n' + v('f-name'));
+      fallback();
     });
     mark();
     window.addEventListener('resize', fit);
