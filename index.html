@@ -424,12 +424,14 @@ footer, .vcopy { font-weight: 500; }
 @media (min-width: 701px) {
   .wrap.ctp .card .board canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; }
   .wrap.ctp .top, .wrap.ctp .card .addr, .wrap.ctp footer, .wrap.ctp .pal { position: relative; z-index: 2; }
+  body.ixopen .wrap.ctp .top { z-index: 35; } /* menu bar stays sharp above the blur while the index is open */
   .wrap.ctp .pal { position: absolute; }
   /* only the links, buttons and colours catch the mouse, everything else lets it through to the drawing surface (pencil everywhere) */
   .wrap.ctp .top, .wrap.ctp .card .addr, .wrap.ctp .card .al, .wrap.ctp .card .fs, .wrap.ctp footer, .wrap.ctp .pal, .wrap.ctp .top .nav, .wrap.ctp .top > span, .wrap.ctp .top .lang { pointer-events: none; }
   .wrap.ctp .top a, .wrap.ctp .top button, .wrap.ctp .card .am2, .wrap.ctp .card .fb, .wrap.ctp .pal button, .wrap.ctp footer a, .wrap.ctp footer button { pointer-events: auto; }
 }
 /* 18.11.: clicking the e-mail or "share artwork" shoots the whole line off to the right, then it comes back */
+.card .am2:not(:hover) .w, .card .fb:not(:hover) .w { animation: none; }
 .card .am2, .card .fb { display: inline-block; }
 .card .shoot { animation: shoot 0.6s cubic-bezier(0.55, 0, 0.85, 0.35) forwards; pointer-events: none; }
 .card .back { animation: back 0.45s ease-out; }
@@ -1140,7 +1142,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
   }
   document.addEventListener('click', function (e) {
     var t = e.target.closest && e.target.closest('.card .am2, .card .fb');
-    if (t) shoot(t);
+    if (t) { shoot(t); setTimeout(function () { t.blur(); }, 0); } /* no focus left behind, so the line does not keep wobbling while the mail is written */
   });
   window.addEventListener('hashchange', render);
   if (/[?&]sent=1/.test(location.search)) setTimeout(function () { var n = document.querySelector('#cf .fn'); if (n) n.textContent = ui('fsent'); history.replaceState(null, '', location.pathname + location.hash); }, 300);
