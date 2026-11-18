@@ -931,20 +931,28 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       var v = function (id) { return document.getElementById(id).value; };
       var note = cf.querySelector('.fn');
       if (FORM_ENDPOINT) {
+        /* 18.11.: classic multipart POST (FormSubmit documents attachments only for this, the ajax call hung) */
         var out = document.createElement('canvas'), sc = Math.min(1, 900 / c.width);
         out.width = Math.round(c.width * sc); out.height = Math.round(c.height * sc);
         var ox = out.getContext('2d'); ox.fillStyle = '#fff'; ox.fillRect(0, 0, out.width, out.height);
         ox.drawImage(c, 0, 0, out.width, out.height);
         if (note) note.textContent = ui('fsending');
         out.toBlob(function (blob) {
-          var fd = new FormData();
-          fd.append('_template', 'table'); fd.append('_captcha', 'false'); fd.append('_honey', ''); fd.append('email', v('f-name')); fd.append('_subject', 'postcard: ' + (v('f-sub') || v('f-topic')).slice(0, 80)); fd.append('subject', v('f-sub') || v('f-topic')); fd.append('message', v('f-topic'));
-          if (strokes.length) fd.append('drawing', blob, 'drawing.jpg');
-          fetch(FORM_ENDPOINT, { method: 'POST', body: fd, headers: { Accept: 'application/json' } }).then(function (r) {
-            if (!r.ok) throw new Error('bad');
-            if (note) note.textContent = ui('fsent');
-            cf.reset(); strokes.length = 0; fit(); if (ta) ta.style.height = 'auto';
-          }).catch(function () { if (note) note.textContent = ui('ferr'); });
+          var f = document.createElement('form');
+          f.method = 'POST'; f.enctype = 'multipart/form-data'; f.acceptCharset = 'UTF-8'; f.style.display = 'none';
+          f.action = FORM_ENDPOINT.replace('/ajax/', '/');
+          var add = function (k, val) { var i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = val; f.appendChild(i); };
+          add('_template', 'table'); add('_captcha', 'false'); add('_next', location.origin + location.pathname + '?sent=1#contact');
+          add('_subject', 'postcard: ' + (v('f-sub') || v('f-topic')).slice(0, 80));
+          add('email', v('f-name')); add('subject', v('f-sub')); add('message', v('f-topic'));
+          var hp = document.createElement('input'); hp.type = 'text'; hp.name = '_honey'; f.appendChild(hp);
+          if (strokes.length && blob) {
+            try {
+              var fi = document.createElement('input'); fi.type = 'file'; fi.name = 'attachment';
+              var dt = new DataTransfer(); dt.items.add(new File([blob], 'postcard.jpg', { type: 'image/jpeg' })); fi.files = dt.files; f.appendChild(fi);
+            } catch (x) {}
+          }
+          document.body.appendChild(f); f.submit();
         }, 'image/jpeg', 0.85);
         return;
       }
@@ -1098,6 +1106,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     root.addEventListener('mouseleave', function () { cur.classList.remove('on'); });
   })();
   window.addEventListener('hashchange', render);
+  if (/[?&]sent=1/.test(location.search)) setTimeout(function () { var n = document.querySelector('#cf .fn'); if (n) n.textContent = ui('fsent'); history.replaceState(null, '', location.pathname + location.hash); }, 300);
   render();
 })();
 </script>
