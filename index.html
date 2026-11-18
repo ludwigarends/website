@@ -559,7 +559,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
   ];
 
   // Nach dem Umzug hier die Adresse des Formulardienstes eintragen (z. B. Formspree/Web3Forms). Leer = Mail-App öffnen.
-  var FORM_ENDPOINT = '/';
+  var FORM_ENDPOINT = 'https://formsubmit.co/ajax/ludwig.arends@t-online.de';
   var ABOUT = {
     text: {
       en: 'Ludwig Anton Arends (*2002) grew up in Saarlouis, Germany on the border to France and is currently based in Berlin. His work is shaped by an interest in the dialogue between people, architecture and nature. He explores how spaces can be designed to be socially conscious and sustainable while maintaining their spatial and atmospheric qualities. His design process combines conceptual ideas with practical conditions and a curiosity for new possibilities. In recent years, nature and its systems have become an increasingly important source of inspiration, raising questions about what we can learn from the natural world in an increasingly technological society.',
@@ -894,7 +894,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
         if (note) note.textContent = ui('fsending');
         out.toBlob(function (blob) {
           var fd = new FormData();
-          fd.append('form-name', 'postcard'); fd.append('bot-field', ''); fd.append('email', v('f-name')); fd.append('subject', v('f-sub') || v('f-topic')); fd.append('message', v('f-topic'));
+          fd.append('_template', 'table'); fd.append('_captcha', 'false'); fd.append('_honey', ''); fd.append('email', v('f-name')); fd.append('_subject', 'postcard: ' + (v('f-sub') || v('f-topic')).slice(0, 80)); fd.append('subject', v('f-sub') || v('f-topic')); fd.append('message', v('f-topic'));
           if (strokes.length) fd.append('drawing', blob, 'drawing.jpg');
           fetch(FORM_ENDPOINT, { method: 'POST', body: fd, headers: { Accept: 'application/json' } }).then(function (r) {
             if (!r.ok) throw new Error('bad');
