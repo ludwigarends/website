@@ -418,6 +418,13 @@ footer, .vcopy { font-weight: 500; }
 .card .fb .w { text-decoration: underline; text-decoration-thickness: 0.08em; text-underline-offset: 0.14em; }
 .card .fn { font-size: 0.78rem; color: var(--muted); }
 
+/* 18.11.: about without portrait */
+.about { grid-template-areas: "left right"; }
+@media (max-width: 560px) { .about, .about.solo { grid-template-areas: "left" "right"; } }
+/* 18.11.: contact without the middle line, form lines end where the menu bar ends */
+.card .board { border-right: 0; }
+@media (min-width: 701px) { .card .al { max-width: 100%; } }
+
 /* 18.11.: hover without coloured marker, only the (stronger) wobble stays */
 .w { background-image: none !important; }
 a:hover .w, a:focus-visible .w, button:hover .w, button:focus-visible .w, .about h2:hover .w, .pinfo h1:hover .w { color: inherit; }
@@ -752,7 +759,6 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
   function sec(key, inner) { return '<section><h2>' + words(ui(key)) + '</h2>' + inner + '</section>'; }
   function about() {
     return '<main><div class="about"><div class="left">' + sec('about', '<p class="lead">' + ABOUT.text[lang] + '</p>') + '</div>' +
-      '<img class="portrait" src="' + PORTRAIT + '" alt="portrait of ludwig anton arends" width="320" height="500">' +
       '<div class="right">' +
       sec('education', rows(ABOUT.education)) + sec('experience', rows(ABOUT.experience)) +
       sec('awards', rows(ABOUT.awards)) + sec('exhibitions', rows(ABOUT.exhibitions)) +
@@ -777,7 +783,19 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
   function setRc() {
     var n = document.querySelector('.top .nav');
     if (n) document.documentElement.style.setProperty('--rc', Math.ceil(n.getBoundingClientRect().width) + 'px');
+    alFit();
   }
+  /* 18.11.: contact form lines end exactly where the menu bar ends (last language button) */
+  function alFit() {
+    var al = document.querySelector('.card .al'), ls = document.querySelectorAll('.top .lang button'), l = ls[ls.length - 1];
+    if (!al) return;
+    al.style.width = '';
+    if (!l || window.innerWidth < 701) return;
+    var w = Math.round(l.getBoundingClientRect().right - al.getBoundingClientRect().left);
+    if (w > 0) al.style.width = w + 'px';
+  }
+  window.addEventListener('resize', alFit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(alFit);
   function hsEls() {
     var m = document.querySelector('.hs'), t = document.querySelector('.top');
     return m && t ? { m: m, st: m.firstChild, tr: m.firstChild.firstChild, th: t.offsetHeight } : null;
