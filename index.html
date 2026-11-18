@@ -433,6 +433,13 @@ footer, .vcopy { font-weight: 500; }
 /* 18.11.: clicking the e-mail or "share artwork" shoots the whole line off to the right, then it comes back */
 .card .am2:not(:hover) .w, .card .fb:not(:hover) .w { animation: none; }
 html.away .w, .still .w { animation: none !important; }
+/* 18.11. test: the hovered link grows a little as a whole (spaces between its words stay) */
+:is(a, button):has(> .w) { display: inline-block; }
+:is(a, button):has(> .w), .ix .it, .vc .cap, .about h2, .pinfo h1 { scale: 1; transition: scale 0.18s ease-out; }
+.ix .it, .vc .cap { transform-origin: left center; display: inline-block; }
+:is(a, button):has(> .w):is(:hover, :focus-visible), .ix a:is(:hover, :focus-visible) .it, .vc:is(:hover, :focus-visible) .cap, .about h2:hover, .pinfo h1:hover { scale: 1.12; }
+.still, .card .still { scale: 1 !important; }
+@media (prefers-reduced-motion: reduce) { :is(a, button):has(> .w), .ix .it, .vc .cap, .about h2, .pinfo h1 { scale: 1 !important; } }
 .card .am2, .card .fb { display: inline-block; }
 .card .shoot { animation: shoot 0.6s cubic-bezier(0.55, 0, 0.85, 0.35) forwards; pointer-events: none; }
 .card .back { animation: back 0.45s ease-out; }
