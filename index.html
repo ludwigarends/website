@@ -432,6 +432,7 @@ footer, .vcopy { font-weight: 500; }
 }
 /* 18.11.: clicking the e-mail or "share artwork" shoots the whole line off to the right, then it comes back */
 .card .am2:not(:hover) .w, .card .fb:not(:hover) .w { animation: none; }
+html.away .w, .still .w { animation: none !important; }
 .card .am2, .card .fb { display: inline-block; }
 .card .shoot { animation: shoot 0.6s cubic-bezier(0.55, 0, 0.85, 0.35) forwards; pointer-events: none; }
 .card .back { animation: back 0.45s ease-out; }
@@ -1135,6 +1136,15 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     }, true);
     root.addEventListener('mouseleave', function () { cur.classList.remove('on'); });
   })();
+  /* 18.11.: Safari keeps the hover state when another app (Mail) comes to the front, so stop all wobbling while the window is in the background,
+     and after a click the clicked line only wobbles again once the mouse has left it and come back */
+  window.addEventListener('blur', function () { document.documentElement.classList.add('away'); });
+  window.addEventListener('focus', function () { document.documentElement.classList.remove('away'); });
+  document.addEventListener('visibilitychange', function () { document.documentElement.classList.toggle('away', document.hidden); });
+  document.addEventListener('mouseout', function (e) {
+    var t = e.target.closest && e.target.closest('.still');
+    if (t && !(e.relatedTarget && t.contains(e.relatedTarget))) t.classList.remove('still');
+  });
   function shoot(el) {
     if (!el || el.classList.contains('shoot')) return;
     el.classList.remove('back'); void el.offsetWidth; el.classList.add('shoot');
@@ -1142,7 +1152,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
   }
   document.addEventListener('click', function (e) {
     var t = e.target.closest && e.target.closest('.card .am2, .card .fb');
-    if (t) { shoot(t); setTimeout(function () { t.blur(); }, 0); } /* no focus left behind, so the line does not keep wobbling while the mail is written */
+    if (t) { shoot(t); t.classList.add('still'); setTimeout(function () { t.blur(); }, 0); } /* no focus left behind, so the line does not keep wobbling while the mail is written */
   });
   window.addEventListener('hashchange', render);
   if (/[?&]sent=1/.test(location.search)) setTimeout(function () { var n = document.querySelector('#cf .fn'); if (n) n.textContent = ui('fsent'); history.replaceState(null, '', location.pathname + location.hash); }, 300);
