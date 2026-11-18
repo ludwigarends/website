@@ -418,6 +418,13 @@ footer, .vcopy { font-weight: 500; }
 .card .fb .w { text-decoration: underline; text-decoration-thickness: 0.08em; text-underline-offset: 0.14em; }
 .card .fn { font-size: 0.78rem; color: var(--muted); }
 
+/* 18.11.: index: hovering a title shows its cover right next to it, the title turns grey */
+#ixp { position: fixed; left: 0; top: 0; z-index: 45; pointer-events: none; opacity: 0; transition: opacity 0.12s; transform-origin: 30% 20%; }
+#ixp.on { opacity: 1; }
+#ixp img { display: block; width: 100%; height: auto; }
+.ix a:hover .w, .ix a:focus-visible .w { opacity: 0.45; }
+@media (hover: none) { #ixp { display: none; } }
+
 /* 18.11.: about without portrait */
 .about { grid-template-areas: "left right"; }
 @media (max-width: 560px) { .about, .about.solo { grid-template-areas: "left" "right"; } }
@@ -1036,6 +1043,41 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     if (t.closest('.ix, [data-index]')) { clearTimeout(ixT); return; }
     clearTimeout(ixT); ixT = setTimeout(function () { ixSet(false); }, 120);
   });
+
+  /* 18.11.: cover preview while hovering a title in the index: sits right next to the entry, slightly overlapping and tilted, in the image's own format */
+  (function () {
+    var bx = document.createElement('div'); bx.id = 'ixp'; bx.setAttribute('aria-hidden', 'true');
+    var im = document.createElement('img'); im.alt = ''; bx.appendChild(im); document.body.appendChild(bx);
+    var covers = {}, TILT = [-3, 2.2, -1.4, 3.2, -2.4, 1.2, -3.4, 2.6, -1, 1.8, -2.8, 3];
+    P.forEach(function (p, i) {
+      var c = p.id === 'pedestrian-bridge' && p.gal && p.gal[0] && p.gal[0].src ? { src: p.gal[0].src, w: p.gal[0].w, h: p.gal[0].h } : p.cover ? { src: p.cover, w: p.cw, h: p.ch } : null;
+      if (c) { c.i = i; covers[p.id] = c; var pre = new Image(); pre.src = c.src; }
+    });
+    var on = null;
+    function show(a, c) {
+      var r = a.getBoundingClientRect(), t = a.querySelector('.it') || a, ws = t.querySelectorAll('.w'), tr = ws.length ? (function () { var f = ws[0].getBoundingClientRect(), l = ws[ws.length - 1].getBoundingClientRect(); return { right: l.right, width: l.right - f.left }; })() : t.getBoundingClientRect();
+      var B = Math.max(120, Math.min(230, window.innerWidth * 0.13)), ar = (c.w && c.h) ? c.w / c.h : 1;
+      var w = B * Math.sqrt(ar), h = B / Math.sqrt(ar);
+      var x = tr.right - Math.min(28, tr.width * 0.25) + (c.i % 3) * 6, y = r.top - h * 0.18 + ((c.i % 2) ? 6 : -4);
+      if (x + w > window.innerWidth - 12) x = window.innerWidth - 12 - w;
+      if (y + h > window.innerHeight - 12) y = window.innerHeight - 12 - h;
+      var ixr = document.getElementById('ix'); if (ixr) y = Math.max(y, ixr.getBoundingClientRect().top + 4);
+      if (y < 12) y = 12;
+      im.src = c.src; bx.style.width = Math.round(w) + 'px';
+      bx.style.transform = 'translate3d(' + Math.round(x) + 'px,' + Math.round(y) + 'px,0)';
+      bx.classList.add('on');
+    }
+    document.addEventListener('mouseover', function (e) {
+      var a = e.target.closest && e.target.closest('.ix a[data-ixlink]');
+      var id = a ? a.getAttribute('href').slice(1) : null;
+      if (id === on) return;
+      on = id;
+      if (id && covers[id] && indexOpen) show(a, covers[id]); else bx.classList.remove('on');
+    });
+    window.addEventListener('scroll', function () { on = null; bx.classList.remove('on'); }, { passive: true });
+    window.addEventListener('hashchange', function () { on = null; bx.classList.remove('on'); });
+    document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.ix a')) { on = null; bx.classList.remove('on'); } });
+  })();
 
   /* eigener Mauszeiger: gespiegelter Link-Pfeil, weiß im Differenz-Modus = immer invertiert zum Hintergrund */
   (function () {
