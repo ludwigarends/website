@@ -1058,8 +1058,10 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       var r = a.getBoundingClientRect(), t = a.querySelector('.it') || a, ws = t.querySelectorAll('.w'), tr = ws.length ? (function () { var f = ws[0].getBoundingClientRect(), l = ws[ws.length - 1].getBoundingClientRect(); return { right: l.right, width: l.right - f.left }; })() : t.getBoundingClientRect();
       var B = Math.max(120, Math.min(230, window.innerWidth * 0.13)), ar = (c.w && c.h) ? c.w / c.h : 1;
       var w = B * Math.sqrt(ar), h = B / Math.sqrt(ar);
-      var x = tr.right - Math.min(28, tr.width * 0.25) + (c.i % 3) * 6, y = r.top - h * 0.18 + ((c.i % 2) ? 6 : -4);
-      if (x + w > window.innerWidth - 12) x = window.innerWidth - 12 - w;
+      var mr = tr.right; [].forEach.call(document.querySelectorAll('.ix .it'), function (it) { var ww = it.querySelectorAll('.w'); if (ww.length) mr = Math.max(mr, ww[ww.length - 1].getBoundingClientRect().right); }); /* right of the longest title, so no title is ever covered */
+      var x = mr + 18 + (c.i % 3) * 6, y = r.top - h * 0.18 + ((c.i % 2) ? 6 : -4);
+      var room = window.innerWidth - 12 - x; /* never over the text: shrink instead of moving left */
+      if (w > room && room > 40) { var k = room / w; w *= k; h *= k; }
       if (y + h > window.innerHeight - 12) y = window.innerHeight - 12 - h;
       var ixr = document.getElementById('ix'); if (ixr) y = Math.max(y, ixr.getBoundingClientRect().top + 4);
       if (y < 12) y = 12;
