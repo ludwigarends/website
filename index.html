@@ -419,6 +419,18 @@ footer, .vcopy { font-weight: 500; }
 .card .fn { font-size: 0.78rem; color: var(--muted); }
 /* 18.11.: contact: only the e-mail address (mailto) and the share button under the drawing */
 .card .am2 { font-size: 1.1rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+.card .am2 .w { text-decoration: underline; text-decoration-thickness: 0.08em; text-underline-offset: 0.14em; }
+/* 18.11.: on the computer the drawing surface covers the whole contact page; menu, colours, e-mail and button stay on top */
+@media (min-width: 701px) {
+  .wrap.ctp .card .board canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; }
+  .wrap.ctp .top, .wrap.ctp .card .addr, .wrap.ctp footer, .wrap.ctp .pal { position: relative; z-index: 2; }
+  .wrap.ctp .pal { position: absolute; }
+}
+/* 18.11.: colours in one row at the height of "share artwork", "new" on the left */
+@media (min-width: 701px) {
+  .pal { flex-direction: row; align-items: center; gap: 14px; bottom: var(--palb, 0px); }
+  .pal .cc { order: -1; margin: 0 4px 0 0; }
+}
 
 /* 18.11.: index: hovering a title shows its cover right next to it, the title turns grey */
 #ixp { position: fixed; left: 0; top: 0; z-index: 45; pointer-events: none; opacity: 0; transition: opacity 0.12s; transform-origin: 30% 20%; }
@@ -796,7 +808,17 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     alFit();
   }
   /* 18.11.: contact form lines end exactly where the menu bar ends (last language button) */
+  function palFit() {
+    var pal = document.querySelector('.pal'), fb = document.querySelector('.card .fb'), bd = document.querySelector('.card .board');
+    if (!pal || !fb || !bd) return;
+    pal.style.removeProperty('--palb');
+    if (window.innerWidth < 701) return;
+    var f = fb.getBoundingClientRect(), b = bd.getBoundingClientRect(), ph = pal.getBoundingClientRect().height;
+    pal.style.setProperty('--palb', Math.round(b.bottom - (f.top + f.height / 2) - ph / 2) + 'px');
+  }
+  window.addEventListener('resize', palFit);
   function alFit() {
+    palFit();
     var al = document.querySelector('.card .al'), ls = document.querySelectorAll('.top .lang button'), l = ls[ls.length - 1];
     if (!al) return;
     al.style.width = '';
