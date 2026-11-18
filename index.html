@@ -489,8 +489,8 @@ svg.ar.u { height: 0.886em; vertical-align: -0.22em; }
 /* Mauszeiger: Link-Pfeil gespiegelt, immer invertiert zum Hintergrund (Zeichenfläche behält den Stift, Textfelder den Textcursor) */
 #cur { position: fixed; left: 0; top: 0; width: 24px; height: 24px; margin: -4px 0 0 -4px; pointer-events: none; z-index: 9999; mix-blend-mode: difference; opacity: 0; will-change: transform; }
 #cur.on { opacity: 1; }
-/* 19.11.: deutsche Seite: Projektseiten, about und kontakt dunkel-anthrazit (#0c0d0e), weiße Zeichnungen im Negativ, Großansicht im weißen Original */
-html.dk { --bg: #0c0d0e; --fg: #fff; --muted: #8e8e8e; --ph-a: #1d1e20; --ph-b: #2e3032; color-scheme: dark; }
+/* 19.11.: deutsche Seite: Projektseiten, about und kontakt fast schwarz (#070708), weiße Zeichnungen im Negativ, Großansicht im weißen Original */
+html.dk { --bg: #070708; --fg: #fff; --muted: #8e8e8e; --ph-a: #1d1e20; --ph-b: #2e3032; color-scheme: dark; }
 html.dk .wrap:not(.hsp) .top a:hover .w, html.dk .wrap:not(.hsp) .top button:hover .w, html.dk .wrap:not(.hsp) .top a:focus-visible .w, html.dk .wrap:not(.hsp) .top button:focus-visible .w, html.dk .card .am:hover .w { color: #fff; }
 html.dk .pal .cs[data-pen="black"] { background: #fff !important; }
 html.dk .gs-item .vid { background: transparent; }
@@ -512,7 +512,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
 </style>
 
 <div id="app"></div>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="neg" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="linear" slope="1.03"/><feFuncG type="linear" slope="1.03"/><feFuncB type="linear" slope="1.03"/></feComponentTransfer><feComponentTransfer><feFuncR type="linear" slope="-0.951373" intercept="1"/><feFuncG type="linear" slope="-0.947451" intercept="1"/><feFuncB type="linear" slope="-0.943529" intercept="1"/></feComponentTransfer></filter></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="neg" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="linear" slope="1.03"/><feFuncG type="linear" slope="1.03"/><feFuncB type="linear" slope="1.03"/></feComponentTransfer><feComponentTransfer><feFuncR type="linear" slope="-0.970980" intercept="1"/><feFuncG type="linear" slope="-0.970980" intercept="1"/><feFuncB type="linear" slope="-0.967059" intercept="1"/></feComponentTransfer></filter></svg>
 
 <script>
 (function () {
@@ -994,7 +994,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       /* 18.11.: share: the drawing as JPG via the share sheet (mail, messages …); without a share sheet the JPG is downloaded and the mail program opens */
       var out = document.createElement('canvas'), sc = Math.min(1, 1200 / c.width);
       out.width = Math.round(c.width * sc); out.height = Math.round(c.height * sc);
-      var ox = out.getContext('2d'); ox.fillStyle = document.documentElement.classList.contains('dk') ? '#0c0d0e' : '#fff'; ox.fillRect(0, 0, out.width, out.height);
+      var ox = out.getContext('2d'); ox.fillStyle = document.documentElement.classList.contains('dk') ? '#070708' : '#fff'; ox.fillRect(0, 0, out.width, out.height);
       ox.drawImage(c, 0, 0, out.width, out.height);
       var url = out.toDataURL('image/jpeg', 0.88), bin = atob(url.split(',')[1]), arrb = new Uint8Array(bin.length);
       for (var q = 0; q < bin.length; q++) arrb[q] = bin.charCodeAt(q);
