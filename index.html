@@ -768,6 +768,8 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     var HO = P.slice(); /* 18.11.: prototype and bda galerie berlin back in their original order (swap removed) */
     var hp = HO.map(function (p) { return p.id; }), h1 = hp.indexOf('phytocatalyst'), h2 = hp.indexOf('bda-galerie-berlin'); /* 18.11.: phytocatalyst and bda galerie berlin swapped on the home page */
     if (h1 > -1 && h2 > -1) { var ht = HO[h1]; HO[h1] = HO[h2]; HO[h2] = ht; }
+    var h3 = hp.indexOf('student-housing'), h4 = hp.indexOf('renaissance-theater'); /* 19.11.: student housing and renaissance theater swapped on the home page */
+    if (h3 > -1 && h4 > -1) { var hu = HO[h3]; HO[h3] = HO[h4]; HO[h4] = hu; }
     var cells = HO.map(function (p, i) {
       return '<a class="vc' + ((p.id === 'cascading-water' || p.id === 'student-housing') ? ' vr' : '' + (p.id === 'renaissance-theater' ? ' vz' : '')) + '" href="#' + p.id + '">' + (p.cover ? img(p.cover, p.cw, p.ch, p.t) : ph(p.kind, i + 1, p.ar)) + '<span class="cap">' + words(p.t + ', ' + p.y) + '</span></a>';
     }).join('');
