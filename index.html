@@ -425,7 +425,18 @@ footer, .vcopy { font-weight: 500; }
   .wrap.ctp .card .board canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; }
   .wrap.ctp .top, .wrap.ctp .card .addr, .wrap.ctp footer, .wrap.ctp .pal { position: relative; z-index: 2; }
   .wrap.ctp .pal { position: absolute; }
+  /* only the links, buttons and colours catch the mouse, everything else lets it through to the drawing surface (pencil everywhere) */
+  .wrap.ctp .top, .wrap.ctp .card .addr, .wrap.ctp .card .al, .wrap.ctp .card .fs, .wrap.ctp footer, .wrap.ctp .pal, .wrap.ctp .top .nav, .wrap.ctp .top > span, .wrap.ctp .top .lang { pointer-events: none; }
+  .wrap.ctp .top a, .wrap.ctp .top button, .wrap.ctp .card .am2, .wrap.ctp .card .fb, .wrap.ctp .pal button, .wrap.ctp footer a, .wrap.ctp footer button { pointer-events: auto; }
 }
+/* 18.11.: clicking the e-mail or "share artwork" shoots the whole line off to the right, then it comes back */
+.card .am2, .card .fb { display: inline-block; }
+.card .shoot { animation: shoot 0.6s cubic-bezier(0.55, 0, 0.85, 0.35) forwards; pointer-events: none; }
+.card .back { animation: back 0.45s ease-out; }
+@keyframes shoot { 0% { transform: translateX(0); } 18% { transform: translateX(-0.35em); } 100% { transform: translateX(110vw); } }
+@keyframes back { 0% { opacity: 0; transform: translateX(-0.6em); } 100% { opacity: 1; transform: translateX(0); } }
+.wrap.ctp { overflow-x: clip; }
+@media (prefers-reduced-motion: reduce) { .card .shoot, .card .back { animation: none; } }
 /* 18.11.: colours in one row at the height of "share artwork", "new" on the left */
 @media (min-width: 701px) {
   .pal { flex-direction: row; align-items: center; gap: 14px; bottom: var(--palb, 0px); }
@@ -797,7 +808,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     var sw = cols.map(function (c) { return c.length === 1 ? '<i class="gp"></i>' : '<button type="button" class="cs" data-pen="' + c[0] + '" style="background:' + c[1] + '" aria-label="' + c[0] + '"></button>'; }).join('');
     var bs = '';
     function ln(id, k) { return '<label class="ln" for="' + id + '"><input id="' + id + '" type="' + (id === 'f-name' ? 'email' : 'text') + '" autocomplete="off" placeholder="' + ui(k) + '"></label>'; }
-    return '<main><div class="card"><div class="board"><canvas id="bd" aria-label="drawing board"></canvas><div class="pal" role="group" aria-label="colour and brush">' + sw + '<span class="pg"></span>' + bs + '<button type="button" class="cc">' + ui('fnew') + '</button></div></div><form class="addr" id="cf" novalidate><div class="al"><a class="am2" href="mailto:' + ABOUT.mail + '"><span class="w">' + ABOUT.mail + '</span></a><span class="fs"><button type="submit" class="fb">' + '<span class="w">' + ui('fshare') + ' ' + arr('r', true) + '</span></button><span class="fn" aria-live="polite"></span></span></div></form></div></main>';
+    return '<main><div class="card"><div class="board"><canvas id="bd" aria-label="drawing board"></canvas><div class="pal" role="group" aria-label="colour and brush">' + sw + '<span class="pg"></span>' + bs + '<button type="button" class="cc">' + ui('fnew') + '</button></div></div><form class="addr" id="cf" novalidate><div class="al"><a class="am2" href="mailto:' + ABOUT.mail + '"><span class="w">' + ABOUT.mail + ' ' + arr('r', true) + '</span></a><span class="fs"><button type="submit" class="fb">' + '<span class="w">' + ui('fshare') + ' ' + arr('r', true) + '</span></button><span class="fn" aria-live="polite"></span></span></div></form></div></main>';
   }
 
   var lastRoute = null, app = document.getElementById('app');
@@ -1122,6 +1133,15 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     }, true);
     root.addEventListener('mouseleave', function () { cur.classList.remove('on'); });
   })();
+  function shoot(el) {
+    if (!el || el.classList.contains('shoot')) return;
+    el.classList.remove('back'); void el.offsetWidth; el.classList.add('shoot');
+    setTimeout(function () { el.classList.remove('shoot'); void el.offsetWidth; el.classList.add('back'); }, 1500);
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('.card .am2, .card .fb');
+    if (t) shoot(t);
+  });
   window.addEventListener('hashchange', render);
   if (/[?&]sent=1/.test(location.search)) setTimeout(function () { var n = document.querySelector('#cf .fn'); if (n) n.textContent = ui('fsent'); history.replaceState(null, '', location.pathname + location.hash); }, 300);
   render();
