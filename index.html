@@ -489,10 +489,30 @@ svg.ar.u { height: 0.886em; vertical-align: -0.22em; }
 /* Mauszeiger: Link-Pfeil gespiegelt, immer invertiert zum Hintergrund (Zeichenfläche behält den Stift, Textfelder den Textcursor) */
 #cur { position: fixed; left: 0; top: 0; width: 24px; height: 24px; margin: -4px 0 0 -4px; pointer-events: none; z-index: 9999; mix-blend-mode: difference; opacity: 0; will-change: transform; }
 #cur.on { opacity: 1; }
+/* 19.11.: deutsche Seite: Projektseiten, about und kontakt dunkel-anthrazit (#0c0d0e), weiße Zeichnungen im Negativ, Großansicht im weißen Original */
+html.dk { --bg: #0c0d0e; --fg: #fff; --muted: #8e8e8e; --ph-a: #1d1e20; --ph-b: #2e3032; color-scheme: dark; }
+html.dk .wrap:not(.hsp) .top a:hover .w, html.dk .wrap:not(.hsp) .top button:hover .w, html.dk .wrap:not(.hsp) .top a:focus-visible .w, html.dk .wrap:not(.hsp) .top button:focus-visible .w, html.dk .card .am:hover .w { color: #fff; }
+html.dk .pal .cs[data-pen="black"] { background: #fff !important; }
+html.dk .gs-item .vid { background: transparent; }
+html.dk .prp img { border-color: #333; }
+/* weiße Zeichnungen und Pläne */
+html.dk .gs-item.wb .zoom { box-sizing: border-box; height: 100%; }
+html.dk.vB .gs-item.wb .zoom { background: #e6e5e2; padding: 0; }
+html.dk.vB .gs-item.wb .im, html.dk.vB .lb img.wb { mix-blend-mode: multiply; }
+html.dk.vC .gs-item.wb .im { filter: hue-rotate(180deg) url(#neg); }
+html.dk.vB .lb img.wb { background: #e6e5e2; padding: 0; }
+html.dk.vB .lb:has(img.wb) { isolation: isolate; }
+html.dk.vC .lb img.wb { background: #fff; }
+
+/* Startseite ganz oben: Menüleiste schwarz statt invertiert, ab dem ersten Scrollen wieder invertiert */
+html.attop .hsp .top { mix-blend-mode: normal; }
+html.attop .hsp .top, html.attop .hsp .top a, html.attop .hsp .top button, html.attop .hsp .top .w, html.attop .hsp .top a:hover .w, html.attop .hsp .top button:hover .w, html.attop .hsp .top a:focus-visible .w, html.attop .hsp .top button:focus-visible .w { color: #0c0e0c !important; -webkit-text-fill-color: #0c0e0c; }
+
 html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !important; }
 </style>
 
 <div id="app"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="neg" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="linear" slope="1.03"/><feFuncG type="linear" slope="1.03"/><feFuncB type="linear" slope="1.03"/></feComponentTransfer><feComponentTransfer><feFuncR type="linear" slope="-0.951373" intercept="1"/><feFuncG type="linear" slope="-0.947451" intercept="1"/><feFuncB type="linear" slope="-0.943529" intercept="1"/></feComponentTransfer></filter></svg>
 
 <script>
 (function () {
@@ -536,6 +556,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     fnew: { en: 'new', de: 'neu' },
     ph: { en: 'placeholder', de: 'platzhalter' }
   };
+  var WB = {"img/cw-03-elevation-v2.webp": 1, "img/cw-04-plan-v2.webp": 1, "img/cw-07-axo-v2.webp": 1, "img/mu-01-thesis.webp": 1, "img/mu-03-tension.webp": 1, "img/mu-04-axo.webp": 1, "img/mu-05-plan.webp": 1, "img/mu-06-plan-basement.webp": 1, "img/mu-07-paths.webp": 1, "img/mu-09-detail-stone.webp": 1, "img/mu-10-detail-glass.webp": 1, "img/pb-02-plan.webp": 1, "img/pb-04-section.webp": 1, "img/pb-06-structure.webp": 1, "img/pb-07-detail.webp": 1, "img/ph-03-axo-1.webp": 1, "img/ph-04-axo-2.webp": 1, "img/ph-05-axo-3.webp": 1, "img/ph-06-plants-v2.webp": 1, "img/ph-07-plan-v2.webp": 1, "img/ph-08-detail.webp": 1, "img/ph-09-section.webp": 1, "img/pt-01-households.webp": 1, "img/pt-02-tower-axo.webp": 1, "img/rt-01-axo.webp": 1, "img/rt-07-plan.webp": 1, "img/sh-02-axo-anim.webp": 1, "img/sh-03-plan.webp": 1, "img/sh-05-section.webp": 1, "img/sh-06-axo-color.webp": 1, "img/tf-01-plan.webp": 1};
   function tr(o) { return typeof o === 'string' ? o : o[lang]; }
   function ui(k) { return UI[k][lang]; }
   function words(s) {
@@ -772,7 +793,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       if (g.quote) { qn++; return '<div class="gs-item gs-q"><blockquote>' + g.quote + '</blockquote><cite>' + g.by + '</cite></div>'; }
       var k = k0 - qn;
       if (g.video) return '<div class="gs-item" data-zoom="' + g.video + '" data-poster="' + g.poster + '"' + sa(k, g) + '><video class="vid" src="' + g.video + '" poster="' + g.poster + '" width="' + g.w + '" height="' + g.h + '" autoplay muted loop playsinline preload="metadata" aria-label="' + g.cap + '"></video></div>';
-      return '<div class="gs-item"' + (g.zt ? ' data-zt="' + g.zt.join(',') + '"' : '') + sa(k, g) + '><button class="zoom" type="button"' + (g.zt ? ' style="aspect-ratio:' + g.w + '/' + g.h + '"' : '') + ' data-zoom="' + g.src + '" data-cap="' + g.cap + '" aria-label="enlarge image ' + (k + 1) + '">' + img(g.src, g.w, g.h, '') + '</button></div>';
+      return '<div class="gs-item' + (WB[g.src] ? ' wb' : '') + '"' + (g.zt ? ' data-zt="' + g.zt.join(',') + '"' : '') + sa(k, g) + '><button class="zoom" type="button"' + (g.zt ? ' style="aspect-ratio:' + g.w + '/' + g.h + '"' : '') + ' data-zoom="' + g.src + '" data-cap="' + g.cap + '" aria-label="enlarge image ' + (k + 1) + '">' + img(g.src, g.w, g.h, '') + '</button></div>';
     }).join('') : GAL.map(function (g, j) {
       return '<div class="gs-item"' + st(j) + '>' + ph(g.k, i * 10 + j + 1, g.ar) + '</div>';
     }).join('');
@@ -926,6 +947,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       } catch (e) {}
     })();
     var COL = { black: '#0c0e0c', green: '#4aff6e', blue: '#1a3cff', red: '#ff0000', cyan: '#00ffff', magenta: '#ff00ff', yellow: '#ffff00', purple: '#b026ff' };
+    function pcol(k) { return k === 'black' && document.documentElement.classList.contains('dk') ? '#ffffff' : COL[k]; }
     function fit() {
       var r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
       c.width = Math.max(1, Math.round(r.width * d)); c.height = Math.max(1, Math.round(r.height * d));
@@ -935,7 +957,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       strokes.forEach(function (st) { draw(st); });
     }
     function draw(st) {
-      var p = st.p; ctx.lineWidth = st.w || (st.c === 'green' ? 5 : 3); ctx.strokeStyle = COL[st.c];
+      var p = st.p; ctx.lineWidth = st.w || (st.c === 'green' ? 5 : 3); ctx.strokeStyle = pcol(st.c);
       ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
       if (p.length === 1) ctx.lineTo(p[0][0] + 0.01, p[0][1]);
       for (var i = 1; i < p.length; i++) ctx.lineTo(p[i][0], p[i][1]);
@@ -949,7 +971,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     c.addEventListener('pointermove', function (e) {
       if (!cur) return;
       var q = pt(e), l = cur.p[cur.p.length - 1];
-      cur.p.push(q); ctx.lineWidth = cur.w || (cur.c === 'green' ? 5 : 3); ctx.strokeStyle = COL[cur.c];
+      cur.p.push(q); ctx.lineWidth = cur.w || (cur.c === 'green' ? 5 : 3); ctx.strokeStyle = pcol(cur.c);
       ctx.beginPath(); ctx.moveTo(l[0], l[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
     });
     function end() { cur = null; }
@@ -972,7 +994,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       /* 18.11.: share: the drawing as JPG via the share sheet (mail, messages …); without a share sheet the JPG is downloaded and the mail program opens */
       var out = document.createElement('canvas'), sc = Math.min(1, 1200 / c.width);
       out.width = Math.round(c.width * sc); out.height = Math.round(c.height * sc);
-      var ox = out.getContext('2d'); ox.fillStyle = '#fff'; ox.fillRect(0, 0, out.width, out.height);
+      var ox = out.getContext('2d'); ox.fillStyle = document.documentElement.classList.contains('dk') ? '#0c0d0e' : '#fff'; ox.fillRect(0, 0, out.width, out.height);
       ox.drawImage(c, 0, 0, out.width, out.height);
       var url = out.toDataURL('image/jpeg', 0.88), bin = atob(url.split(',')[1]), arrb = new Uint8Array(bin.length);
       for (var q = 0; q < bin.length; q++) arrb[q] = bin.charCodeAt(q);
@@ -1000,6 +1022,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     var route = idx > -1 ? 'project' : (id === 'about' ? 'about' : id === 'contact' ? 'contact' : (id === 'press-release' || id === 'dab-blatt') ? 'press' : 'portfolio');
     var active = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute('data-fk') : null;
     document.documentElement.lang = lang;
+    document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'de'); /* schwarz nur auf der deutschen Seite, englisch bleibt weiß */
     var main = route === 'project' ? project(idx) : route === 'about' ? about() : route === 'contact' ? contact() : route === 'press' ? pressPage(id) : home();
     app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
     setTimeout(gsZoom, 0); setTimeout(gsZoom, 400);
@@ -1009,6 +1032,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     if (route !== 'contact') strokes = [];
     if (route !== 'portfolio') document.body.style.backgroundPosition = '';
     setRc(); hsLayout(); ixPlace(); initBoard();
+    if (typeof atTop === 'function') setTimeout(atTop, 0);
     if (active) { var el = app.querySelector('[data-fk="' + active + '"]'); if (el) el.focus({ preventScroll: true }); }
   }
 
@@ -1036,6 +1060,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       cur.replaceWith(n2); var pr = n2.play(); if (pr && pr.catch) pr.catch(function () {});
     } else if (cur.tagName === 'VIDEO') { n2 = document.createElement('img'); n2.alt = ''; n2.src = src; cur.replaceWith(n2); }
     else cur.src = src;
+    var lim = l.querySelector('img'); if (lim) lim.classList.toggle('wb', !!WB[src]);
   }
   document.addEventListener('click', function (e) {
     var t = e.target, z = t.closest && t.closest('[data-zoom]');
@@ -1154,6 +1179,10 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     var t = e.target.closest && e.target.closest('.card .am2, .card .fb');
     if (t) { shoot(t); t.classList.add('still'); setTimeout(function () { t.blur(); }, 0); } /* no focus left behind, so the line does not keep wobbling while the mail is written */
   });
+
+  document.documentElement.classList.add('vC'); /* Zeichnungen auf der dunklen Seite im Negativ */
+  function atTop() { document.documentElement.classList.toggle('attop', (window.scrollY || 0) <= 4); }
+  window.addEventListener('scroll', atTop, { passive: true });
   window.addEventListener('hashchange', render);
   if (/[?&]sent=1/.test(location.search)) setTimeout(function () { var n = document.querySelector('#cf .fn'); if (n) n.textContent = ui('fsent'); history.replaceState(null, '', location.pathname + location.hash); }, 300);
   render();
