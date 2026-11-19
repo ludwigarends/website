@@ -555,11 +555,9 @@ html.dk.vC .lb img.wb { background: #fff; }
 .lb img[src*="-cut"], html.dk .lb img[src*="-cut"] { background: transparent !important; box-shadow: none; filter: drop-shadow(0 6px 24px rgba(0,0,0,.28)); }
 html.dk.vC .lb img[src*="-cut"] { filter: drop-shadow(0 6px 24px rgba(0,0,0,.5)); }
 
-/* 20.11.: Startseite ganz oben (nur Computer): Menüleiste immer invertiert und so groß, dass sie von der Mitte bis zum rechten Rand reicht; der Name in derselben Größe, rechtsbündig an der Mitte; ab dem ersten Scrollen wieder normal groß */
-@media (min-width: 701px) {
-  html.big .hsp .top { font-size: var(--curfs, var(--bigfs, clamp(1.1rem, 1.8vw, 1.7rem))); }
-  html.big .hsp .top .nav, html.big .hsp .top .lang { gap: calc(var(--bigg, 0.7) * 1em); }
-}
+/* Startseite ganz oben: Menüleiste schwarz statt invertiert, ab dem ersten Scrollen wieder invertiert */
+html.attop .hsp .top { mix-blend-mode: normal; }
+html.attop .hsp .top, html.attop .hsp .top a, html.attop .hsp .top button, html.attop .hsp .top .w, html.attop .hsp .top a:hover .w, html.attop .hsp .top button:hover .w, html.attop .hsp .top a:focus-visible .w, html.attop .hsp .top button:focus-visible .w { color: #0c0e0c !important; -webkit-text-fill-color: #0c0e0c; }
 
 html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4XmNgYGBgAAAABQABGWkDzwAAAABJRU5ErkJggg==") 0 0, none !important; } /* 19.11.: invisible image cursor: Safari no longer brings the system arrow back while scrolling */
 </style>
@@ -814,10 +812,9 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   function ixSet(open) {
     indexOpen = open;
     var ix = document.getElementById('ix'), b = document.querySelector('[data-index]');
-    document.body.classList.toggle('ixopen', open);
-    if (typeof atTop === 'function') atTop(); /* 20.11.: große Startseiten-Leiste wird beim Öffnen des Index normal groß */
     ixPlace();
     if (ix) ix.classList.toggle('open', open);
+    document.body.classList.toggle('ixopen', open);
     if (b) b.setAttribute('aria-expanded', open);
     if (open) ixPhoneOpen();
   }
@@ -1177,7 +1174,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     if (route !== 'contact') strokes = [];
     if (route !== 'portfolio') document.body.style.backgroundPosition = '';
     setRc(); hsLayout(); ixPlace(); initBoard();
-    if (typeof atTop === 'function') { bigF = 0; setTimeout(atTop, 0); }
+    if (typeof atTop === 'function') setTimeout(atTop, 0);
     if (active) { var el = app.querySelector('[data-fk="' + active + '"]'); if (el) el.focus({ preventScroll: true }); }
   }
 
@@ -1243,7 +1240,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     if (t.closest && t.closest('[data-index]')) ixSet(window.matchMedia('(hover: hover)').matches ? true : !indexOpen);
     else if (t.closest && t.closest('[data-ixlink]')) ixSet(false);
   });
-  window.addEventListener('hashchange', function () { indexOpen = false; document.body.classList.remove('ixopen'); if (typeof atTop === 'function') setTimeout(atTop, 0); });
+  window.addEventListener('hashchange', function () { indexOpen = false; document.body.classList.remove('ixopen'); });
   var ixT = 0;
   document.addEventListener('mouseover', function (e) {
     var t = e.target;
@@ -1352,39 +1349,8 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   });
 
   document.documentElement.classList.add('vC'); /* Zeichnungen auf der dunklen Seite im Negativ */
-  /* 20.11.: wie bei plot.berlin: ganz oben groß, beim Scrollen schrumpft die Leiste im Takt des Scrollens auf die normale Größe */
-  var bigF = 0, bigF0 = 0, bigRaf = 0;
-  function atTop() {
-    var h = document.documentElement, y = window.scrollY || 0;
-    h.classList.toggle('attop', y <= 4);
-    var t = document.querySelector('.hsp .top');
-    var on = !!t && window.innerWidth > 700 && !document.body.classList.contains('ixopen');
-    if (on && !bigF) fitBig();
-    var D = Math.max(120, window.innerHeight * 0.22), k = Math.min(1, Math.max(0, y / D));
-    k = 1 - Math.pow(1 - k, 2); /* sanft auslaufen */
-    if (!on || k >= 1 || bigF <= bigF0) { h.classList.remove('big'); return; }
-    h.style.setProperty('--curfs', (bigF + (bigF0 - bigF) * k).toFixed(2) + 'px');
-    h.classList.add('big');
-  }
-  function atTopRaf() { if (!bigRaf) bigRaf = requestAnimationFrame(function () { bigRaf = 0; atTop(); }); }
-  /* Schriftgröße so berechnen, dass „index … de“ von der Mitte genau bis zum rechten Rand reicht (Name gleich groß, darf links nicht über den Rand) */
-  function fitBig() {
-    var t = document.querySelector('.hsp .top'); if (!t) return;
-    var nav = t.querySelector('.nav'), nm = t.firstElementChild, ls = t.querySelectorAll('.lang button'), l = ls[ls.length - 1], f = nav && nav.firstElementChild;
-    if (!nav || !nm || !l || !f) return;
-    var h = document.documentElement, was = h.classList.contains('big'), cur = h.style.getPropertyValue('--curfs');
-    h.classList.remove('big');
-    var F0 = parseFloat(getComputedStyle(t).fontSize) || 24, g = (parseFloat(getComputedStyle(nav).columnGap) || 0.7 * F0) / F0;
-    h.style.setProperty('--bigg', g.toFixed(4)); h.style.setProperty('--curfs', '100px'); h.classList.add('big');
-    var wN = l.getBoundingClientRect().right - f.getBoundingClientRect().left;
-    var ct = getComputedStyle(t), col = (t.clientWidth - (parseFloat(ct.paddingLeft) || 0) - (parseFloat(ct.paddingRight) || 0)) / 2, pl = parseFloat(getComputedStyle(nav).paddingLeft) || 0, avN = col - pl;
-    var a = nm.firstElementChild || nm, wM = a.getBoundingClientRect().width, pr = parseFloat(getComputedStyle(nm).paddingRight) || 0, avM = col - pr;
-    bigF = Math.max(F0, 100 * Math.min(avN / wN, avM / wM) - 0.5); bigF0 = F0;
-    h.style.setProperty('--curfs', cur || bigF + 'px');
-    if (!was) h.classList.remove('big');
-  }
-  window.addEventListener('scroll', atTopRaf, { passive: true });
-  window.addEventListener('resize', function () { bigF = 0; atTop(); });
+  function atTop() { document.documentElement.classList.toggle('attop', (window.scrollY || 0) <= 4); }
+  window.addEventListener('scroll', atTop, { passive: true });
   window.addEventListener('hashchange', render);
   if (/[?&]sent=1/.test(location.search)) setTimeout(function () { var n = document.querySelector('#cf .fn'); if (n) n.textContent = ui('fsent'); history.replaceState(null, '', location.pathname + location.hash); }, 300);
   render();
