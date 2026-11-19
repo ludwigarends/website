@@ -1027,7 +1027,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     var route = idx > -1 ? 'project' : (id === 'about' ? 'about' : id === 'contact' ? 'contact' : (id === 'press-release' || id === 'dab-blatt') ? 'press' : 'portfolio');
     var active = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute('data-fk') : null;
     document.documentElement.lang = lang;
-    document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'de'); /* schwarz nur auf der deutschen Seite, englisch bleibt weiß */
+    document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'en'); /* 19.11.: getauscht: englische Seite dunkel, deutsche Seite weiß */
     var main = route === 'project' ? project(idx) : route === 'about' ? about() : route === 'contact' ? contact() : route === 'press' ? pressPage(id) : home();
     app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
     setTimeout(gsZoom, 0); setTimeout(gsZoom, 400);
