@@ -1022,12 +1022,21 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
      in that direction does the rest of the motion move the page, in the same motion. Mouse outside a gallery -> the page scrolls.
      The gallery under the mouse is looked up from the mouse position (not from the event target, which Safari keeps on the element where
      an earlier swipe started), so a gallery right under the mouse on a freshly opened page always reacts. Movement is 1:1, no easing. */
+  /* (4) Soft hand-over: when a swipe runs out of gallery, the trackpad is usually still sending fast momentum steps from the sideways
+     run. Those used to hit the page at full speed and shot it to the bottom. Now, for the rest of that same swipe, the page only takes
+     a damped share of each step (about a third, at most 14 px); a new swipe after a short pause scrolls the page normally again. */
   function gsMax(g) { return Math.max(0, g.scrollWidth - g.clientWidth); }
+  var gsT = 0, gsCarry = 0;
+  function gsSoft(e, d) { e.preventDefault(); var v = d * 0.33; v = Math.max(-14, Math.min(14, v)); window.scrollBy(0, v); }
   document.addEventListener('wheel', function (e) {
     if (e.ctrlKey) return; /* pinch zoom */
+    var now = performance.now(), cont = now - gsT < 140; gsT = now;
+    if (!cont) gsCarry = 0;
     var dx = e.deltaX, dy = e.deltaY;
     if (e.deltaMode === 1) { dx *= 32; dy *= 32; } else if (e.deltaMode === 2) { dx *= window.innerWidth; dy *= window.innerHeight; }
     if (!dy || Math.abs(dx) > Math.abs(dy)) return; /* sideways swipe: the strip scrolls natively */
+    if (gsCarry && Math.sign(dy) === gsCarry) { gsSoft(e, dy); return; }
+    gsCarry = 0;
     var hit = document.elementFromPoint(e.clientX, e.clientY) || e.target;
     var el = hit && hit.closest && hit.closest('.gs');
     if (!el) return;
@@ -1036,7 +1045,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     e.preventDefault();
     var nx = Math.max(0, Math.min(m, x + dy)), rest = dy - (nx - x);
     el.scrollLeft = nx;
-    if (Math.abs(rest) > 0.5) window.scrollBy(0, rest);
+    if (dy > 0 ? nx >= m - 0.5 : nx <= 0.5) { gsCarry = Math.sign(dy); if (Math.abs(rest) > 0.5) gsSoft(e, rest); }
   }, { passive: false });
 
 
