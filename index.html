@@ -496,6 +496,8 @@ html.away #ixc .w { animation: none; }
 #ixh.on { display: block; }
 #ixh .w { color: #000 !important; -webkit-text-fill-color: #000; animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
 html.ixhon .ix a.ixhov .it .w, html.ixhon .ix a.ixhov .iy { opacity: 0 !important; }
+/* 19.11.: on the dark pages the hovered title and year are white */
+html.dk #ixh, html.dk #ixh .w { color: #fff !important; -webkit-text-fill-color: #fff; }
 #ixh > span { position: absolute; left: 0; top: 0; }
 @media (hover: none) { #ixp { display: none; } }
 
@@ -549,12 +551,15 @@ html.dk.vC .gs-item.wb .im { filter: hue-rotate(180deg) url(#neg); }
 html.dk.vB .lb img.wb { background: #e6e5e2; padding: 0; }
 html.dk.vB .lb:has(img.wb) { isolation: isolate; }
 html.dk.vC .lb img.wb { background: #fff; }
+/* 19.11.: site plan of the pedestrian bridge cut along the drawing (transparent around it): no square frame, the shadow follows the shape */
+.lb img[src*="-cut"], html.dk .lb img[src*="-cut"] { background: transparent !important; box-shadow: none; filter: drop-shadow(0 6px 24px rgba(0,0,0,.28)); }
+html.dk.vC .lb img[src*="-cut"] { filter: drop-shadow(0 6px 24px rgba(0,0,0,.5)); }
 
 /* Startseite ganz oben: Menüleiste schwarz statt invertiert, ab dem ersten Scrollen wieder invertiert */
 html.attop .hsp .top { mix-blend-mode: normal; }
 html.attop .hsp .top, html.attop .hsp .top a, html.attop .hsp .top button, html.attop .hsp .top .w, html.attop .hsp .top a:hover .w, html.attop .hsp .top button:hover .w, html.attop .hsp .top a:focus-visible .w, html.attop .hsp .top button:focus-visible .w { color: #0c0e0c !important; -webkit-text-fill-color: #0c0e0c; }
 
-html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !important; }
+html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4XmNgYGBgAAAABQABGWkDzwAAAABJRU5ErkJggg==") 0 0, none !important; } /* 19.11.: invisible image cursor: Safari no longer brings the system arrow back while scrolling */
 </style>
 
 <div id="app"></div>
@@ -602,7 +607,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     fnew: { en: 'new', de: 'neu' },
     ph: { en: 'placeholder', de: 'platzhalter' }
   };
-  var WB = {"img/pt-05-plants.webp": 1, "img/ph-11-drawing.webp": 1, "img/cw-03-elevation-v2.webp": 1, "img/cw-04-plan-v2.webp": 1, "img/cw-07-axo-v2.webp": 1, "img/mu-01-thesis.webp": 1, "img/mu-03-tension.webp": 1, "img/mu-04-axo.webp": 1, "img/mu-05-plan.webp": 1, "img/mu-06-plan-basement.webp": 1, "img/mu-07-paths.webp": 1, "img/mu-09-detail-stone.webp": 1, "img/mu-10-detail-glass.webp": 1, "img/pb-02-plan.webp": 1, "img/pb-04-section.webp": 1, "img/pb-06-structure.webp": 1, "img/pb-07-detail.webp": 1, "img/ph-03-axo-1.webp": 1, "img/ph-04-axo-2.webp": 1, "img/ph-05-axo-3.webp": 1, "img/ph-06-plants-v2.webp": 1, "img/ph-07-plan-v2.webp": 1, "img/ph-08-detail.webp": 1, "img/ph-09-section.webp": 1, "img/pt-01-households.webp": 1, "img/pt-02-tower-axo.webp": 1, "img/rt-01-axo.webp": 1, "img/rt-07-plan.webp": 1, "img/sh-02-axo-anim.webp": 1, "img/sh-03-plan.webp": 1, "img/sh-05-section.webp": 1, "img/sh-06-axo-color.webp": 1, "img/tf-01-plan.webp": 1};
+  var WB = {"img/pt-05-plants.webp": 1, "img/ph-11-drawing.webp": 1, "img/cw-03-elevation-v2.webp": 1, "img/cw-04-plan-v2.webp": 1, "img/cw-07-axo-v2.webp": 1, "img/mu-01-thesis.webp": 1, "img/mu-03-tension.webp": 1, "img/mu-04-axo.webp": 1, "img/mu-05-plan.webp": 1, "img/mu-06-plan-basement.webp": 1, "img/mu-07-paths.webp": 1, "img/mu-09-detail-stone.webp": 1, "img/mu-10-detail-glass.webp": 1, "img/pb-02-plan-cut3.webp": 1, "img/pb-04-section.webp": 1, "img/pb-06-structure.webp": 1, "img/pb-07-detail.webp": 1, "img/ph-03-axo-1.webp": 1, "img/ph-04-axo-2.webp": 1, "img/ph-05-axo-3.webp": 1, "img/ph-06-plants-v2.webp": 1, "img/ph-07-plan-v2.webp": 1, "img/ph-08-detail.webp": 1, "img/ph-09-section.webp": 1, "img/pt-01-households.webp": 1, "img/pt-02-tower-axo.webp": 1, "img/rt-01-axo.webp": 1, "img/rt-07-plan.webp": 1, "img/sh-02-axo-anim.webp": 1, "img/sh-03-plan.webp": 1, "img/sh-05-section.webp": 1, "img/sh-06-axo-color.webp": 1, "img/tf-01-plan.webp": 1};
   function tr(o) { return typeof o === 'string' ? o : o[lang]; }
   function ui(k) { return UI[k][lang]; }
   function words(s) {
@@ -665,7 +670,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       note: { en: 'europacity bridge design tu berlin, prize winner', de: 'europacity bridge design tu berlin, preisträger' },
       who: 'julius morgenstern', place: 'berlin, germany',
       text: {"en": ["The design for a pedestrian bridge connecting the newly developed Europacity with the residential neighbourhood to the west across the railway tracks was developed as part of a student ideas competition. The proposal builds upon the new open-space design on the western side, extending it through a carefully shaped topography that creates elevated viewpoints and new visual connections. On the eastern side, the bridge abutment is integrated into a landscaped green mound and complemented by a forecourt with seating areas.", "The bridge structure consists of cantilevered arms, each fixed at one end and arranged in a mirrored, symmetrical system. Working together, they provide the structural capacity required to span the railway tracks without the need for intermediate supports within the railway corridor."], "de": ["Der Entwurf f\u00fcr eine Fu\u00dfg\u00e4ngerbr\u00fccke, die das neu entwickelte Europacity \u00fcber die Bahngleise hinweg mit dem Wohnquartier im Westen verbindet, entstand im Rahmen eines studentischen Ideenwettbewerbs. Der Vorschlag baut auf der neuen Freiraumgestaltung auf der Westseite auf und f\u00fchrt sie durch eine sorgf\u00e4ltig modellierte Topografie weiter, die erh\u00f6hte Aussichtspunkte und neue Sichtbeziehungen schafft. Auf der Ostseite ist das Br\u00fcckenwiderlager in einen landschaftlich gestalteten gr\u00fcnen H\u00fcgel integriert und durch einen Vorplatz mit Sitzbereichen erg\u00e4nzt.", "Das Br\u00fcckentragwerk besteht aus auskragenden Armen, die jeweils an einem Ende eingespannt und in einem gespiegelten, symmetrischen System angeordnet sind. Gemeinsam erbringen sie die Tragf\u00e4higkeit, die n\u00f6tig ist, um die Bahngleise ohne Zwischenst\u00fctzen im Gleiskorridor zu \u00fcberspannen."]},
-      gal: [{"src": "img/pb-01-aerial.webp", "w": 2400, "h": 1666, "cap": "aerial view", "s": 1, "sc": 0.814, "ctr": 1}, {"src": "img/pb-02-plan.webp", "w": 1762, "h": 1717, "cap": "site plan", "s": 1, "sc": 1.53, "ctr": 1}, {"src": "img/pb-03-entrance.webp", "w": 2400, "h": 2400, "cap": "entrance", "s": 1, "sc": 1.125, "ctr": 1}, {"src": "img/pb-04-section.webp", "w": 2239, "h": 694, "cap": "section", "s": 1, "sc": 0.8, "ctr": 1}, {"src": "img/pb-05-walkway.webp", "w": 2400, "h": 2400, "cap": "bridge deck", "s": 1, "sc": 0.87, "ctr": 1, "off": 0.04}, {"src": "img/pb-06-structure.webp", "w": 963, "h": 1717, "cap": "structural system", "s": 1, "sc": 1.696, "ctr": 1}, {"src": "img/pb-07-detail.webp", "w": 2400, "h": 2400, "cap": "detail", "s": 1, "sc": 1.256, "ctr": 1}] },
+      gal: [{"src": "img/pb-01-aerial.webp", "w": 2400, "h": 1666, "cap": "aerial view", "s": 1, "sc": 0.814, "ctr": 1}, {"src": "img/pb-02-plan-cut3.webp", "w": 2313, "h": 2313, "cap": "site plan", "s": 1, "sc": 1.53, "ctr": 1, "fh": 0.9304, "fmt": 0.0348}, {"src": "img/pb-03-entrance.webp", "w": 2400, "h": 2400, "cap": "entrance", "s": 1, "sc": 1.125, "ctr": 1}, {"src": "img/pb-04-section.webp", "w": 2239, "h": 694, "cap": "section", "s": 1, "sc": 0.8, "ctr": 1}, {"src": "img/pb-05-walkway.webp", "w": 2400, "h": 2400, "cap": "bridge deck", "s": 1, "sc": 0.87, "ctr": 1, "off": 0.04}, {"src": "img/pb-06-structure.webp", "w": 963, "h": 1717, "cap": "structural system", "s": 1, "sc": 1.696, "ctr": 1}, {"src": "img/pb-07-detail.webp", "w": 2400, "h": 2400, "cap": "detail", "s": 1, "sc": 1.256, "ctr": 1}] },
     { id: 'student-housing', t: 'student housing', y: 2022, kind: 'render', ar: '1 / 1', cover: 'img/sh-01-render.webp', cw: 2112, ch: 2112, cn: 6, cm: 6, cmt: 2,
       sub: 'transformation of a former coal mine into a university campus', who: 'fabienne gro\u00df and max sordon', place: 'g\u00f6ttelborn, germany',
       text: {"en": ["The Schwarz-Wei\u00df-Gang (Black-and-White Corridor) at the present-day G\u00f6ttelborn Campus is a relic of the former G\u00f6ttelborn coal mine. The corridor once led miners from the changing rooms to the shaft in the morning and back again in the evening. Its name derives from the miners\u2019 clothing, which was white in the morning and black by the end of the working day.", "The approximately 100-metre-long corridor, located directly adjacent to the htw saar Faculty of Architecture, is to be converted into student housing. A second storey, constructed entirely in timber, is added to the existing structure, projecting beyond it on one side to accommodate an access corridor suspended alongside the original building. The wooden structure is articulated by landscaped communal terraces, which are connected to the shared spaces."], "de": ["Der Schwarz-Wei\u00df-Gang auf dem heutigen Campus G\u00f6ttelborn ist ein Relikt der ehemaligen Grube G\u00f6ttelborn. Der Gang f\u00fchrte die Bergleute fr\u00fcher morgens von der Waschkaue zum Schacht und abends wieder zur\u00fcck. Sein Name geht auf die Kleidung der Bergleute zur\u00fcck, die morgens wei\u00df und am Ende der Schicht schwarz war.", "Der etwa 100 Meter lange Gang, direkt neben der Fakult\u00e4t f\u00fcr Architektur der htw saar gelegen, soll zu Studierendenwohnungen umgebaut werden. Auf den Bestand wird ein zweites Geschoss aufgesetzt, das vollst\u00e4ndig in Holz errichtet ist und auf einer Seite \u00fcber ihn hinauskragt, um einen Erschlie\u00dfungsgang aufzunehmen, der neben dem urspr\u00fcnglichen Geb\u00e4ude abgeh\u00e4ngt ist. Die Holzstruktur wird durch begr\u00fcnte Gemeinschaftsterrassen gegliedert, die mit den Gemeinschaftsr\u00e4umen verbunden sind."]},
@@ -1012,14 +1017,46 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
   }
   document.addEventListener('scroll', function () { requestAnimationFrame(gsZoom); }, true);
   window.addEventListener('resize', gsZoom);
-  var gsLast = 0;
+  /* 19.11.: wheel / trackpad in the galleries, rebuilt. A scroll gesture is assigned once, at its start, either to the gallery under the pointer
+     or to the page, and keeps that target until the fingers / wheel pause (gaps < 180 ms belong to the same gesture, so trackpad momentum included).
+     So the page no longer jumps on when a gallery reaches its end in the middle of a swipe, and a gallery no longer grabs a page scroll that
+     started elsewhere. Mouse wheel notches are eased so the strip glides instead of jumping. */
+  var gsG = { t: 0, el: null, page: false }, gsAnim = new WeakMap();
+  function gsMax(g) { return Math.max(0, g.scrollWidth - g.clientWidth); }
+  function gsGlide(g, d) {
+    var a = gsAnim.get(g);
+    if (!a) { a = { to: 0, raf: 0, last: -1 }; gsAnim.set(g, a); }
+    if (a.raf && Math.abs(g.scrollLeft - a.last) > 3) { cancelAnimationFrame(a.raf); a.raf = 0; } /* moved by something else (finger, scrollbar): start from there */
+    a.to = Math.max(0, Math.min(gsMax(g), (a.raf ? a.to : g.scrollLeft) + d));
+    if (a.raf) return;
+    (function step() {
+      var cur = g.scrollLeft, diff = a.to - cur;
+      if (Math.abs(diff) < 0.6 || (a.last >= 0 && Math.abs(cur - a.last) > 3)) { if (Math.abs(diff) < 0.6) g.scrollLeft = a.to; a.raf = 0; a.last = -1; return; }
+      g.scrollLeft = cur + diff * 0.22; a.last = g.scrollLeft;
+      a.raf = requestAnimationFrame(step);
+    })();
+  }
   document.addEventListener('wheel', function (e) {
-    var g = e.target.closest && e.target.closest('.gs');
-    if (!g || e.ctrlKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-    var max = g.scrollWidth - g.clientWidth, dy = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY;
-    var can = dy > 0 ? g.scrollLeft < max - 1 : g.scrollLeft > 0, now = Date.now();
-    if (can) { e.preventDefault(); g.scrollLeft += dy; gsLast = now; }
-    else if (now - gsLast < 220) { e.preventDefault(); }
+    if (e.ctrlKey) return; /* pinch zoom */
+    var now = e.timeStamp || Date.now(), fresh = now - gsG.t > 180;
+    gsG.t = now;
+    var dx = e.deltaX, dy = e.deltaY;
+    if (e.deltaMode === 1) { dx *= 32; dy *= 32; } else if (e.deltaMode === 2) { dx *= window.innerWidth; dy *= window.innerHeight; }
+    if (fresh) {
+      var g = e.target.closest && e.target.closest('.gs');
+      gsG.el = null; gsG.page = true;
+      if (g && gsMax(g) > 1 && Math.abs(dy) > Math.abs(dx)) {
+        var x = g.scrollLeft, m = gsMax(g);
+        /* only take the gesture if the strip can still move in that direction; at its ends the page scrolls on as usual */
+        if (dy > 0 ? x < m - 3 : x > 3) { gsG.el = g; gsG.page = false; }
+      }
+    }
+    var el = gsG.el;
+    if (!el || !document.contains(el)) return;
+    if (Math.abs(dx) > Math.abs(dy) * 1.2) return; /* a sideways swipe scrolls the strip natively */
+    e.preventDefault();
+    if (e.deltaMode === 0 && Math.abs(dy) < 40) { var a = gsAnim.get(el); if (a && a.raf) { cancelAnimationFrame(a.raf); a.raf = 0; } el.scrollLeft = Math.max(0, Math.min(gsMax(el), el.scrollLeft + dy)); }
+    else gsGlide(el, dy * 1.2);
   }, { passive: false });
 
 
@@ -1267,15 +1304,21 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     cur.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24"><polygon points="4,4 15,4 15,6.2 7.756,6.2 18.278,16.722 16.722,18.278 6.2,7.756 6.2,15 4,15" fill="#fff"/></svg>';
     document.body.appendChild(cur);
     var root = document.documentElement;
-    document.addEventListener('pointermove', function (e) {
+    /* 19.11.: position written straight away on every move (also the raw, faster events where the browser has them), and kept in place
+       while the page or a gallery scrolls, so the arrow no longer lags or jumps */
+    var lx = -100, ly = -100, nat = false;
+    function place(x, y) { lx = x; ly = y; cur.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)'; }
+    function mv(e) {
       if (e.pointerType && e.pointerType !== 'mouse') return;
-      var t = e.target, native = t && t.closest && t.closest('canvas, input, textarea');
-      root.classList.add('curon');
-      cur.style.transform = 'translate3d(' + e.clientX + 'px,' + e.clientY + 'px,0)';
-      cur.classList.toggle('on', !native);
-      if (native) root.classList.remove('curon'); else root.classList.add('curon');
-    }, true);
+      var t = e.target, native = !!(t && t.closest && t.closest('canvas, input, textarea'));
+      place(e.clientX, e.clientY);
+      if (native !== nat || !cur.classList.contains('on') && !native) { nat = native; cur.classList.toggle('on', !native); root.classList.toggle('curon', !native); }
+    }
+    document.addEventListener('pointermove', mv, { capture: true, passive: true });
+    if ('onpointerrawupdate' in window) document.addEventListener('pointerrawupdate', mv, { capture: true, passive: true });
+    document.addEventListener('mouseover', function (e) { if (!nat) { root.classList.add('curon'); cur.classList.add('on'); } }, true);
     root.addEventListener('mouseleave', function () { cur.classList.remove('on'); });
+    window.addEventListener('blur', function () { cur.classList.remove('on'); });
   })();
   /* 18.11.: Safari keeps the hover state when another app (Mail) comes to the front, so stop all wobbling while the window is in the background,
      and after a click the clicked line only wobbles again once the mouse has left it and come back */
