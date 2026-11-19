@@ -470,7 +470,7 @@ html.away .w, .still .w { animation: none !important; }
   /* the list is no longer inverted on the phone, so the centred title can be black over its picture */
   .ix { mix-blend-mode: normal; color: var(--fg); }
   .ix a, .ix a .w { color: var(--fg) !important; }
-  .ix ol, .ix li + li { border-color: var(--fg) !important; }
+  .ix ol, .ix li + li { border: 0 !important; } /* 19.11.: no dividing lines in the phone index */
   .ix li.c a, .ix li.c a .w { color: #000 !important; }
   .ix li.c .w { animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
 }
