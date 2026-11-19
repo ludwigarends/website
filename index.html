@@ -464,18 +464,26 @@ html.away .w, .still .w { animation: none !important; }
   .ix-in::-webkit-scrollbar { display: none; }
   .ix-in { -webkit-mask-image: linear-gradient(transparent, #000 9%, #000 91%, transparent); mask-image: linear-gradient(transparent, #000 9%, #000 91%, transparent); }
   .ix ol { margin: 0; padding: calc(50vh - var(--ixmax, 140px) / 2 - 1.2em) 0; padding: calc(50dvh - var(--ixmax, 140px) / 2 - 1.2em) 0; border: 0; }
-  .ix li { scroll-snap-align: center; opacity: var(--o, 0.3); transition: opacity 0.2s; }
+  .ix li { scroll-snap-align: center; }
   .ix a { padding: 1.9em 0; } /* much more space between the rows, so there is more to scroll */
-  .ix li.c { --o: 1; }
-  /* the list is no longer inverted on the phone, so the centred title can be black over its picture */
-  .ix { mix-blend-mode: normal; color: var(--fg); }
-  .ix a, .ix a .w { color: var(--fg) !important; }
-  .ix ol, .ix li + li { border: 0 !important; } /* 19.11.: no dividing lines in the phone index */
-  .ix li.c a, .ix li.c a .w { color: #000 !important; }
-  .ix li.c .w { animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
+  /* titles inverted like the desktop index (lines too); the centred one is hidden here and drawn black, wobbling, by #ixc above */
+  body.ixopen .ix li.c a { color: transparent !important; }
+  body.ixopen .ix li.c a .w { color: transparent !important; }
+  #ixc { display: block; }
+  body.ixopen #ixc { opacity: 1; }
 }
-@media (max-width: 700px) and (prefers-reduced-motion: reduce) { .ix li.c .w { animation: none; } }
-html.away .ix li.c .w { animation: none; }
+#ixc { position: fixed; left: 0; top: 0; z-index: 41; pointer-events: none; display: none; opacity: 0; color: #000; }
+#ixc .w { color: #000 !important; animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
+@media (prefers-reduced-motion: reduce) { #ixc .w { animation: none; } }
+html.away #ixc .w { animation: none; }
+/* 19.11.: phone only: no dash after the name, bigger menu bar whose second line (index … de) runs from the left to the right edge, index titles in the same size */
+@media (max-width: 700px) {
+  .top .dash, .hsp .top .dash { display: none; }
+  .top, .hsp .top { font-size: calc((100vw - 2 * var(--gut)) * 0.072); }
+  .top .nav, .hsp .top .nav, .wrap .top .nav { width: 100%; justify-content: space-between; gap: 0 !important; flex-wrap: nowrap; padding-left: 0; }
+  .top .lang { display: contents; }
+  .ix a { font-size: calc((100vw - 2 * var(--gut)) * 0.072); }
+}
 /* 18.11.: index: hovering a title shows its cover right next to it, the title turns grey */
 #ixp { position: fixed; left: 0; top: 0; z-index: 45; pointer-events: none; opacity: 0; transition: opacity 0.12s; transform-origin: 30% 20%; }
 #ixp.on { opacity: 1; }
@@ -751,6 +759,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
   /* 19.11.: phone index: centred title bright, its home-page cover behind the list */
   var ixm = document.createElement('div'); ixm.id = 'ixm'; ixm.setAttribute('aria-hidden', 'true'); document.body.appendChild(ixm);
   var ixmImgs = {}, ixmOn = null, ixRaf = 0;
+  var ixc = document.createElement('div'); ixc.id = 'ixc'; ixc.setAttribute('aria-hidden', 'true'); document.body.appendChild(ixc);
   function ixPhone() { return window.matchMedia('(max-width: 700px)').matches; }
   function ixCentre() {
     ixRaf = 0;
@@ -760,10 +769,15 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     var lis = sc.querySelectorAll('li');
     [].forEach.call(lis, function (li) {
       var b = li.getBoundingClientRect(), d = Math.abs(b.top + b.height / 2 - mid);
-      li.style.setProperty('--o', Math.max(0.18, 1 - d / (r.height * 0.42)).toFixed(2));
       if (d < bd) { bd = d; best = li; }
     });
     [].forEach.call(lis, function (li) { li.classList.toggle('c', li === best); });
+    var ba = best && best.querySelector('a');
+    if (ba) {
+      var br = ba.getBoundingClientRect(), cs = getComputedStyle(ba);
+      if (ixc.dataset.k !== ba.getAttribute('href')) { ixc.innerHTML = ba.innerHTML; ixc.dataset.k = ba.getAttribute('href'); }
+      ixc.style.cssText = 'left:' + br.left + 'px;top:' + br.top + 'px;width:' + br.width + 'px;height:' + br.height + 'px;display:grid;grid-template-columns:' + cs.gridTemplateColumns + ';align-items:baseline;box-sizing:border-box;padding:' + cs.padding + ';font-size:' + cs.fontSize + ';line-height:' + cs.lineHeight + ';letter-spacing:' + cs.letterSpacing + ';';
+    }
     var a = best && best.querySelector('a'), id = a && a.getAttribute('href').slice(1), pr = null;
     P.forEach(function (p) { if (p.id === id) pr = p; });
     var src = pr && pr.cover;
