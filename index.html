@@ -165,11 +165,11 @@ a:hover .w, a:focus-visible .w, button:hover .w, button:focus-visible .w, .about
 .field.tight { column-gap: clamp(8px, 1.4vw, 20px); row-gap: clamp(8px, 1.4vw, 20px); }
 .field.tight .cell > .im, .field.tight .zoom { width: 78%; }
 .field.tight .cell.s3 .zoom { width: 52%; }
-.lbx { position: absolute; top: 50%; transform: translateY(-50%); font-size: clamp(1.6rem, 3vw, 2.6rem); line-height: 1; padding: 12px; color: var(--fg); cursor: pointer; }
+.lbx { position: absolute; top: 50%; transform: translateY(-50%); font-size: clamp(1.3rem, 2.2vw, 2.1rem); line-height: 1; padding: 12px; color: var(--fg); cursor: pointer; }
 .lbx.prev { left: max(8px, env(safe-area-inset-left, 0px)); }
 .lbx.next { right: max(8px, env(safe-area-inset-right, 0px)); }
 .lb { position: fixed; inset: 0; z-index: 50; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); cursor: zoom-out; }
-.lb img { box-shadow: 0 6px 40px rgba(0,0,0,.28); background: var(--bg); max-width: calc(100% - clamp(64px, 10vw, 150px)); cursor: default; max-height: calc(100vh - 70px); max-height: calc(100dvh - 70px); width: auto; height: auto; object-fit: contain; }
+.lb img { box-shadow: 0 6px 40px rgba(0,0,0,.28); background: var(--bg); max-width: calc(100% - clamp(64px, 10vw, 150px)); cursor: default; max-height: calc(100vh - clamp(150px, 20vh, 260px)); max-height: calc(100dvh - clamp(150px, 20dvh, 260px)); width: auto; height: auto; object-fit: contain; }
 .lb span { font-size: 0.72rem; color: var(--muted); }
 .cap.muted { color: var(--muted); }
 
@@ -314,7 +314,7 @@ body:has(.wrap.hsp), .hs .cell { --grid: transparent; }
 .prp { display: flex; flex-direction: column; align-items: center; gap: clamp(12px, 2vw, 24px); }
 .prp img { display: block; width: min(100%, 860px); height: auto; border: 1px solid #d9d9d9; background: #fff; }
 .gs-item[data-zoom] { cursor: zoom-in; }
-.lb video { box-shadow: 0 6px 40px rgba(0,0,0,.28); background: #000; max-width: calc(100% - clamp(64px, 10vw, 150px)); max-height: calc(100vh - 70px); max-height: calc(100dvh - 70px); width: auto; height: auto; object-fit: contain; cursor: default; }
+.lb video { box-shadow: 0 6px 40px rgba(0,0,0,.28); background: #000; max-width: calc(100% - clamp(64px, 10vw, 150px)); max-height: calc(100vh - clamp(150px, 20vh, 260px)); max-height: calc(100dvh - clamp(150px, 20dvh, 260px)); width: auto; height: auto; object-fit: contain; cursor: default; }
 .gs-item .vid { display: block; width: auto; height: 100%; max-width: none; background: #fff; }
 
 /* idea 1: vertical full-bleed cover grid, inverted fixed menu */
@@ -905,9 +905,9 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
   }
   function pressPage(id) {
     var h = '';
-    if (id === 'dab-blatt') return '<main class="pr"><p class="prb"><a href="#bda-galerie-berlin">' + words('← bda galerie berlin') + '</a></p><div class="prp"><img src="pdf/dab-01.webp" width="1654" height="2205" alt="deutsches architekt:innenblatt 10-2024"></div></main>';
+    if (id === 'dab-blatt') return '<main class="pr"><p class="prb"><a href="#bda-galerie-berlin">' + arr('l') + ' ' + words('bda galerie berlin') + '</a></p><div class="prp"><img src="pdf/dab-01.webp" width="1654" height="2205" alt="deutsches architekt:innenblatt 10-2024"></div></main>';
     for (var n = 1; n <= 17; n++) h += '<img src="pdf/pr-' + (n < 10 ? '0' : '') + n + '.webp" width="1241" height="1755" alt="press release, page ' + n + '"' + (n > 2 ? ' loading="lazy"' : '') + '>';
-    return '<main class="pr"><p class="prb"><a href="#cascading-water">' + words('← cascading water') + '</a></p><div class="prp">' + h + '</div></main>';
+    return '<main class="pr"><p class="prb"><a href="#cascading-water">' + arr('l') + ' ' + words('cascading water') + '</a></p><div class="prp">' + h + '</div></main>';
   }
   function contact() {
     var cols = [['cyan', '#00ffff'], ['magenta', '#ff00ff'], ['yellow', '#ffff00'], ['black', '#0c0e0c']];
@@ -1104,7 +1104,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     var route = idx > -1 ? 'project' : (id === 'about' ? 'about' : id === 'contact' ? 'contact' : (id === 'press-release' || id === 'dab-blatt') ? 'press' : 'portfolio');
     var active = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute('data-fk') : null;
     document.documentElement.lang = lang;
-    document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'en'); /* 19.11.: getauscht: englische Seite dunkel, deutsche Seite weiß */
+    document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'de'); /* 19.11.: deutsche Seite dunkel, englische Seite weiß */
     var main = route === 'project' ? project(idx) : route === 'about' ? about() : route === 'contact' ? contact() : route === 'press' ? pressPage(id) : home();
     app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
     setTimeout(gsZoom, 0); setTimeout(gsZoom, 400);
@@ -1151,7 +1151,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
       lbList = [].map.call(document.querySelectorAll('[data-zoom]'), function (x) { return x.getAttribute('data-zoom'); });
       var l = document.createElement('div');
       l.className = 'lb'; l.setAttribute('role', 'dialog'); l.setAttribute('aria-label', 'image');
-      l.innerHTML = '<button class="lbx prev" type="button" aria-label="previous">←</button><img src="" alt=""><button class="lbx next" type="button" aria-label="next">→</button>';
+      l.innerHTML = '<button class="lbx prev" type="button" aria-label="previous">' + arr('l') + '</button><img src="" alt=""><button class="lbx next" type="button" aria-label="next">' + arr('r') + '</button>';
       document.body.appendChild(l);
       showLb(lbList.indexOf(z.getAttribute('data-zoom')));
     } else if (t.closest && t.closest('.lbx')) {
