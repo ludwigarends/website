@@ -493,7 +493,8 @@ html.away #ixc .w { animation: none; }
 #ixh { position: fixed; left: 0; top: 0; z-index: 46; pointer-events: none; color: #000; white-space: nowrap; display: none; }
 #ixh.on { display: block; }
 #ixh .w { color: #000 !important; -webkit-text-fill-color: #000; animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
-html.ixhon .ix a.ixhov .it .w { opacity: 0 !important; }
+html.ixhon .ix a.ixhov .it .w, html.ixhon .ix a.ixhov .iy { opacity: 0 !important; }
+#ixh > span { position: absolute; left: 0; top: 0; }
 @media (hover: none) { #ixp { display: none; } }
 
 /* 18.11.: about without portrait */
@@ -1209,12 +1210,16 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
     var hov = null;
     function hideH() { hx.classList.remove('on'); document.documentElement.classList.remove('ixhon'); if (hov) hov.classList.remove('ixhov'); hov = null; }
     function showH(a) {
-      var t = a.querySelector('.it'); if (!t) return;
-      var r = t.getBoundingClientRect(), cs = getComputedStyle(t);
-      hx.innerHTML = t.innerHTML;
-      ['fontFamily', 'fontSize', 'fontWeight', 'letterSpacing', 'lineHeight', 'fontFeatureSettings', 'wordSpacing'].forEach(function (k) { hx.style[k] = cs[k]; });
-      hx.style.width = Math.ceil(r.width) + 'px'; hx.style.textAlign = cs.textAlign;
-      hx.style.transform = 'translate3d(' + r.left + 'px,' + r.top + 'px,0)';
+      var parts = [a.querySelector('.iy'), a.querySelector('.it')].filter(Boolean); if (!parts.length) return;
+      hx.innerHTML = '';
+      parts.forEach(function (t) {
+        var r = t.getBoundingClientRect(), cs = getComputedStyle(t), sp = document.createElement('span');
+        sp.innerHTML = t.innerHTML;
+        ['fontFamily', 'fontSize', 'fontWeight', 'letterSpacing', 'lineHeight', 'fontFeatureSettings', 'fontVariantNumeric', 'wordSpacing', 'paddingTop', 'paddingLeft', 'textAlign'].forEach(function (k) { sp.style[k] = cs[k]; });
+        sp.style.width = Math.ceil(r.width) + 'px';
+        sp.style.transform = 'translate3d(' + r.left + 'px,' + r.top + 'px,0)';
+        hx.appendChild(sp);
+      });
       if (hov) hov.classList.remove('ixhov'); hov = a; a.classList.add('ixhov');
       hx.classList.add('on'); document.documentElement.classList.add('ixhon');
     }
