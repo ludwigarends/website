@@ -555,9 +555,13 @@ html.dk.vC .lb img.wb { background: #fff; }
 .lb img[src*="-cut"], html.dk .lb img[src*="-cut"] { background: transparent !important; box-shadow: none; filter: drop-shadow(0 6px 24px rgba(0,0,0,.28)); }
 html.dk.vC .lb img[src*="-cut"] { filter: drop-shadow(0 6px 24px rgba(0,0,0,.5)); }
 
-/* Startseite ganz oben: Menüleiste schwarz statt invertiert, ab dem ersten Scrollen wieder invertiert */
-html.attop .hsp .top { mix-blend-mode: normal; }
-html.attop .hsp .top, html.attop .hsp .top a, html.attop .hsp .top button, html.attop .hsp .top .w, html.attop .hsp .top a:hover .w, html.attop .hsp .top button:hover .w, html.attop .hsp .top a:focus-visible .w, html.attop .hsp .top button:focus-visible .w { color: #0c0e0c !important; -webkit-text-fill-color: #0c0e0c; }
+/* 20.11.: Startseite ganz oben: Menüleiste invertiert, darüber eine deckungsgleiche Kopie in Schwarz mit 30 % Deckkraft, so wird der invertierte Effekt dunkler; ab dem ersten Scrollen wieder rein invertiert */
+.hsp .top.dim { visibility: hidden; mix-blend-mode: normal; opacity: 0.3; z-index: 41; pointer-events: none !important; }
+html.attop body:not(.ixopen) .hsp .top.dim { visibility: visible; }
+.hsp .top.dim, .hsp .top.dim * { pointer-events: none !important; }
+.hsp .top.dim a, .hsp .top.dim button, .hsp .top.dim .w, .hsp .top.dim a .w, .hsp .top.dim button .w { color: #000 !important; -webkit-text-fill-color: #000 !important; -webkit-mask-image: none !important; mask-image: none !important; animation: none; }
+.hsp .top.dim .hv .w { animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
+@media (prefers-reduced-motion: reduce) { .hsp .top.dim .hv .w { animation: none; } }
 
 html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4XmNgYGBgAAAABQABGWkDzwAAAABJRU5ErkJggg==") 0 0, none !important; } /* 19.11.: invisible image cursor: Safari no longer brings the system arrow back while scrolling */
 </style>
@@ -1157,6 +1161,23 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     window.addEventListener('resize', fit);
     fit();
   }
+  /* 20.11.: dunkle Kopie der Startseiten-Menüleiste (30 % Schwarz über dem invertierten Effekt) */
+  function topDim() {
+    var t = document.querySelector('.hsp .top:not(.dim)'); if (!t) return;
+    var c = t.cloneNode(true); c.classList.add('dim'); c.setAttribute('aria-hidden', 'true');
+    c.querySelectorAll('*').forEach(function (e) { ['data-index', 'data-lang', 'data-fk', 'href', 'id', 'aria-controls', 'aria-expanded', 'aria-pressed'].forEach(function (a) { e.removeAttribute(a); }); if (e.matches('a, button')) e.tabIndex = -1; });
+    t.parentNode.insertBefore(c, t.nextSibling);
+  }
+  function dimHover(e, on) {
+    var a = e.target.closest && e.target.closest('.hsp .top:not(.dim) a, .hsp .top:not(.dim) button'); if (!a) return;
+    var t = a.closest('.top'), d = t.parentNode.querySelector('.top.dim'); if (!d) return;
+    var i = Array.prototype.indexOf.call(t.querySelectorAll('a, button'), a), b = d.querySelectorAll('a, button')[i];
+    if (b) b.classList.toggle('hv', on);
+  }
+  document.addEventListener('mouseover', function (e) { dimHover(e, true); });
+  document.addEventListener('mouseout', function (e) { dimHover(e, false); });
+  document.addEventListener('focusin', function (e) { dimHover(e, true); });
+  document.addEventListener('focusout', function (e) { dimHover(e, false); });
   function render() {
     var id = (location.hash || '').slice(1) || 'portfolio';
     var idx = -1;
@@ -1173,7 +1194,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     lastRoute = id;
     if (route !== 'contact') strokes = [];
     if (route !== 'portfolio') document.body.style.backgroundPosition = '';
-    setRc(); hsLayout(); ixPlace(); initBoard();
+    setRc(); hsLayout(); ixPlace(); initBoard(); topDim();
     if (typeof atTop === 'function') setTimeout(atTop, 0);
     if (active) { var el = app.querySelector('[data-fk="' + active + '"]'); if (el) el.focus({ preventScroll: true }); }
   }
