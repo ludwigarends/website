@@ -1017,46 +1017,26 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   }
   document.addEventListener('scroll', function () { requestAnimationFrame(gsZoom); }, true);
   window.addEventListener('resize', gsZoom);
-  /* 19.11.: wheel / trackpad in the galleries, rebuilt. A scroll gesture is assigned once, at its start, either to the gallery under the pointer
-     or to the page, and keeps that target until the fingers / wheel pause (gaps < 180 ms belong to the same gesture, so trackpad momentum included).
-     So the page no longer jumps on when a gallery reaches its end in the middle of a swipe, and a gallery no longer grabs a page scroll that
-     started elsewhere. Mouse wheel notches are eased so the strip glides instead of jumping. */
-  var gsG = { t: 0, el: null, page: false }, gsAnim = new WeakMap();
+  /* 19.11. (3): wheel / trackpad in the galleries. Simple rule, decided on every single scroll step from where the mouse is right now:
+     mouse over a gallery -> the gallery moves sideways first (down = to the right, up = to the left); only when it has reached its end
+     in that direction does the rest of the motion move the page, in the same motion. Mouse outside a gallery -> the page scrolls.
+     The gallery under the mouse is looked up from the mouse position (not from the event target, which Safari keeps on the element where
+     an earlier swipe started), so a gallery right under the mouse on a freshly opened page always reacts. Movement is 1:1, no easing. */
   function gsMax(g) { return Math.max(0, g.scrollWidth - g.clientWidth); }
-  function gsGlide(g, d) {
-    var a = gsAnim.get(g);
-    if (!a) { a = { to: 0, raf: 0, last: -1 }; gsAnim.set(g, a); }
-    if (a.raf && Math.abs(g.scrollLeft - a.last) > 3) { cancelAnimationFrame(a.raf); a.raf = 0; } /* moved by something else (finger, scrollbar): start from there */
-    a.to = Math.max(0, Math.min(gsMax(g), (a.raf ? a.to : g.scrollLeft) + d));
-    if (a.raf) return;
-    (function step() {
-      var cur = g.scrollLeft, diff = a.to - cur;
-      if (Math.abs(diff) < 0.6 || (a.last >= 0 && Math.abs(cur - a.last) > 3)) { if (Math.abs(diff) < 0.6) g.scrollLeft = a.to; a.raf = 0; a.last = -1; return; }
-      g.scrollLeft = cur + diff * 0.22; a.last = g.scrollLeft;
-      a.raf = requestAnimationFrame(step);
-    })();
-  }
   document.addEventListener('wheel', function (e) {
     if (e.ctrlKey) return; /* pinch zoom */
-    var now = e.timeStamp || Date.now(), fresh = now - gsG.t > 180;
-    gsG.t = now;
     var dx = e.deltaX, dy = e.deltaY;
     if (e.deltaMode === 1) { dx *= 32; dy *= 32; } else if (e.deltaMode === 2) { dx *= window.innerWidth; dy *= window.innerHeight; }
-    if (fresh) {
-      var g = e.target.closest && e.target.closest('.gs');
-      gsG.el = null; gsG.page = true;
-      if (g && gsMax(g) > 1 && Math.abs(dy) > Math.abs(dx)) {
-        var x = g.scrollLeft, m = gsMax(g);
-        /* only take the gesture if the strip can still move in that direction; at its ends the page scrolls on as usual */
-        if (dy > 0 ? x < m - 3 : x > 3) { gsG.el = g; gsG.page = false; }
-      }
-    }
-    var el = gsG.el;
-    if (!el || !document.contains(el)) return;
-    if (Math.abs(dx) > Math.abs(dy) * 1.2) return; /* a sideways swipe scrolls the strip natively */
+    if (!dy || Math.abs(dx) > Math.abs(dy)) return; /* sideways swipe: the strip scrolls natively */
+    var hit = document.elementFromPoint(e.clientX, e.clientY) || e.target;
+    var el = hit && hit.closest && hit.closest('.gs');
+    if (!el) return;
+    var m = gsMax(el), x = el.scrollLeft;
+    if (m < 1 || (dy > 0 ? x >= m - 0.5 : x <= 0.5)) return; /* already at the end in this direction: page scrolls natively */
     e.preventDefault();
-    if (e.deltaMode === 0 && Math.abs(dy) < 40) { var a = gsAnim.get(el); if (a && a.raf) { cancelAnimationFrame(a.raf); a.raf = 0; } el.scrollLeft = Math.max(0, Math.min(gsMax(el), el.scrollLeft + dy)); }
-    else gsGlide(el, dy * 1.2);
+    var nx = Math.max(0, Math.min(m, x + dy)), rest = dy - (nx - x);
+    el.scrollLeft = nx;
+    if (Math.abs(rest) > 0.5) window.scrollBy(0, rest);
   }, { passive: false });
 
 
