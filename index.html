@@ -868,12 +868,12 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: none !im
   function project(i) {
     var p = P[i], prev = P[(i + P.length - 1) % P.length], next = P[(i + 1) % P.length];
     var H = [0.86, 0.62, 0.8, 0.7, 0.92, 0.56, 0.78, 0.66, 0.74], M = [0, 0.1, 0.03, 0.17, 0, 0.14, 0.06, 0.2, 0.02], G = [0.32, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32];
-    function st(k, sc, ctr, off) { var j = k % 9; return ' style="--h:' + (H[j] * (sc || 1)) + ';--mt:' + (ctr ? (1 - H[j] * (sc || 1)) / 2 + (off || 0) : M[j]) + ';--g:' + G[j] + '"'; }
+    function st(k, sc, ctr, off) { var j = k % 9, h = Math.min(1, H[j] * (sc || 1)); return ' style="--h:' + h + ';--mt:' + Math.max(0, Math.min(1 - h, ctr ? (1 - h) / 2 + (off || 0) : M[j])) + ';--g:' + G[j] + '"'; } /* 19.11.: never taller than the strip, never cut */
     var qn = 0, alt = 0;
     function sa(k, g) {
-      var j = k % 9, h = H[j] * (g.sc || 1), free = 1 - h;
+      var j = k % 9, h = Math.min(1, H[j] * (g.sc || 1)), free = 1 - h;
       if (g.max) return ' style="--h:1;--mt:0;--g:' + G[j] + '"'; /* 19.11.: as large as the gallery strip allows */
-      if (g.mt != null) { alt++; return ' style="--h:' + h + ';--mt:' + g.mt + ';--g:' + G[j] + '"'; }
+      if (g.mt != null) { alt++; return ' style="--h:' + h + ';--mt:' + Math.min(g.mt, free) + ';--g:' + G[j] + '"'; }
       if (g.mid) return ' style="--h:' + h + ';--mt:' + Math.max(0, free) / 2 + ';--g:' + G[j] + '"';
       if (g.bot) { alt = 0; return ' style="--h:' + h + ';--mt:' + Math.max(0, free) + ';--g:' + G[j] + '"'; }
       if (free < 0.06) return st(k, g.sc, g.ctr, g.off);
