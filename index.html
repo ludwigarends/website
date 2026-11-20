@@ -537,6 +537,8 @@ svg.ar.u { height: 0.886em; vertical-align: -0.22em; }
 /* Mauszeiger: Link-Pfeil gespiegelt, immer invertiert zum Hintergrund (Zeichenfläche behält den Stift, Textfelder den Textcursor) */
 #cur { position: fixed; left: 0; top: 0; width: 24px; height: 24px; margin: -4px 0 0 -4px; pointer-events: none; z-index: 9999; mix-blend-mode: difference; opacity: 0; will-change: transform; }
 #cur.on { opacity: 1; }
+/* 20.11.: Handy und Tablet ohne Maus: kein eigener Mauszeiger (der Pfeil blieb sonst links oben stehen) */
+@media (hover: none), (pointer: coarse) { #cur { display: none !important; } }
 /* 19.11.: deutsche Seite: Projektseiten, about und kontakt fast schwarz (#070708), weiße Zeichnungen im Negativ, Großansicht im weißen Original */
 html.dk { --bg: #070708; --fg: #fff; --muted: #8e8e8e; --ph-a: #1d1e20; --ph-b: #2e3032; color-scheme: dark; }
 html.dk .wrap:not(.hsp) .top a:hover .w, html.dk .wrap:not(.hsp) .top button:hover .w, html.dk .wrap:not(.hsp) .top a:focus-visible .w, html.dk .wrap:not(.hsp) .top button:focus-visible .w, html.dk .card .am:hover .w { color: #fff; }
@@ -1340,13 +1342,18 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     function place(x, y) { lx = x; ly = y; cur.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)'; }
     function mv(e) {
       if (e.pointerType && e.pointerType !== 'mouse') return;
+      touch = false;
       var t = e.target, native = !!(t && t.closest && t.closest('canvas, input, textarea'));
       place(e.clientX, e.clientY);
       if (native !== nat || !cur.classList.contains('on') && !native) { nat = native; cur.classList.toggle('on', !native); root.classList.toggle('curon', !native); }
     }
     document.addEventListener('pointermove', mv, { capture: true, passive: true });
     if ('onpointerrawupdate' in window) document.addEventListener('pointerrawupdate', mv, { capture: true, passive: true });
-    document.addEventListener('mouseover', function (e) { if (!nat) { root.classList.add('curon'); cur.classList.add('on'); } }, true);
+    /* 20.11.: Tippen auf dem Handy löst auch ein mouseover aus; den Pfeil nur zeigen, wenn wirklich eine Maus benutzt wird */
+    var touch = false;
+    document.addEventListener('pointerdown', function (e) { touch = e.pointerType !== 'mouse'; if (touch) { cur.classList.remove('on'); root.classList.remove('curon'); } }, true);
+    document.addEventListener('touchstart', function () { touch = true; cur.classList.remove('on'); root.classList.remove('curon'); }, { capture: true, passive: true });
+    document.addEventListener('mouseover', function (e) { if (!nat && !touch && lx > -100) { root.classList.add('curon'); cur.classList.add('on'); } }, true);
     root.addEventListener('mouseleave', function () { cur.classList.remove('on'); });
     window.addEventListener('blur', function () { cur.classList.remove('on'); });
   })();
