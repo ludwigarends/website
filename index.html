@@ -1195,7 +1195,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   function topDim() {
     var t = document.querySelector('.hsp .top:not(.dim):not(.blk)'); if (!t) return;
     /* 23.11.: zweite Kopie .blk in reinem Schwarz: zeigt nur das Wort unter der Maus (wie beim Index), das invertierte Original wird dafür ausgeblendet */
-    ['blk', 'dim', 'yel', 'dge', 'brn', 'sat'].forEach(function (k) { /* 24.11.: sat + yel = Umfärbung (dunkel -> neongelb, hell -> schwarz) */
+    ['blk', 'dim', 'dge', 'brn'].forEach(function (k) { /* 24.11.: brn + dge = verstärkte Invertierung mit Farben (gelbe Umfärbung sat + yel auf Wunsch wieder raus) */
       var c = t.cloneNode(true); c.classList.add(k); c.setAttribute('aria-hidden', 'true');
       c.querySelectorAll('*').forEach(function (e) { ['data-index', 'data-lang', 'data-fk', 'href', 'id', 'aria-controls', 'aria-expanded', 'aria-pressed'].forEach(function (a) { e.removeAttribute(a); }); if (e.matches('a, button')) e.tabIndex = -1; });
       t.parentNode.insertBefore(c, t.nextSibling);
@@ -1230,7 +1230,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     if (route !== 'contact') strokes = [];
     if (route !== 'portfolio') document.body.style.backgroundPosition = '';
     setRc(); hsLayout(); ixPlace(); initBoard(); topDim();
-    app.querySelectorAll('.vc > .cap').forEach(function (c) { ['yel', 'dge', 'brn', 'sat'].forEach(function (k) { var d = c.cloneNode(true); d.classList.add(k); d.setAttribute('aria-hidden', 'true'); c.parentNode.insertBefore(d, c.nextSibling); }); }); /* 24.11.: Umfärbung auch für die Projekttitel */
+    app.querySelectorAll('.vc > .cap').forEach(function (c) { ['dge', 'brn'].forEach(function (k) { var d = c.cloneNode(true); d.classList.add(k); d.setAttribute('aria-hidden', 'true'); c.parentNode.insertBefore(d, c.nextSibling); }); }); /* 24.11.: Umfärbung auch für die Projekttitel */
     if (typeof atTop === 'function') { atTop(); setTimeout(atTop, 0); }
     /* 23.11.: new menu bar starts at the size of the old one and grows / shrinks to its own size (e.g. project page -> start page) */
     var tops = app.querySelectorAll('.top'), newFs = tops[0] ? getComputedStyle(tops[0]).fontSize : null;
