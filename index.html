@@ -576,8 +576,24 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
 .hsp .top.blk .hv .w { animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
 .hsp .top .hvo .w, .hsp .top.dim .hv .w { opacity: 0 !important; }
 @media (prefers-reduced-motion: reduce) { .hsp .top.blk .hv .w { animation: none; } }
-/* 24.11.: Startseite: invertierte Schrift (Menüleiste, Projekttitel, ©-Zeile) in Neongelb statt Weiß – auf dunklen Stellen gelb, auf hellen blau-violett; Wort unter der Maus bleibt schwarz */
-.hsp .top:not(.blk):not(.dim) a, .hsp .top:not(.blk):not(.dim) button, .hsp .top:not(.blk):not(.dim) .w, .vc .cap, .vc .cap .w, .vcopy, .vcopy * { color: #e6ff00 !important; -webkit-text-fill-color: #e6ff00 !important; }
+/* 24.11.: Startseite: Umfärbung statt reiner Invertierung – je dunkler das Bild hinter der Schrift, desto neongelber; je heller, desto schwärzer.
+   Drei Schichten übereinander: weiß mit difference (Helligkeit umdrehen) -> grau mit saturation (Farbe raus) -> neongelb mit multiply (einfärben). */
+.hsp .top.sat, .hsp .top.yel { z-index: 40; }
+.hsp .top.sat, .hsp .top.sat *, .hsp .top.yel, .hsp .top.yel * { pointer-events: none !important; }
+.hsp .top.sat, .vc .cap.sat { mix-blend-mode: saturation; }
+.hsp .top.yel, .vc .cap.yel { mix-blend-mode: multiply; }
+.hsp .top.sat a, .hsp .top.sat button, .hsp .top.sat .w, .vc .cap.sat, .vc .cap.sat .w { color: #808080 !important; -webkit-text-fill-color: #808080 !important; }
+.hsp .top.yel a, .hsp .top.yel button, .hsp .top.yel .w, .vc .cap.yel, .vc .cap.yel .w { color: #e6ff00 !important; -webkit-text-fill-color: #e6ff00 !important; }
+.hsp .top.sat .hv .w, .hsp .top.yel .hv .w { opacity: 0 !important; }
+.vc[href="#museum-for-abstract-art"] .cap.sat, .vc[href="#museum-for-abstract-art"] .cap.yel, .vc:hover .cap.sat, .vc:hover .cap.yel, .vc:focus-visible .cap.sat, .vc:focus-visible .cap.yel { visibility: hidden; }
+/* 24.11.: Übergang steiler: color-burn + color-dodge mit Grau drücken die Mitteltöne auseinander (fast nur noch gelb oder schwarz) */
+.hsp .top.brn, .hsp .top.dge { z-index: 40; }
+.hsp .top.brn, .hsp .top.brn *, .hsp .top.dge, .hsp .top.dge * { pointer-events: none !important; }
+.hsp .top.brn, .vc .cap.brn { mix-blend-mode: color-burn; }
+.hsp .top.dge, .vc .cap.dge { mix-blend-mode: color-dodge; }
+.hsp .top.brn a, .hsp .top.brn button, .hsp .top.brn .w, .vc .cap.brn, .vc .cap.brn .w, .hsp .top.dge a, .hsp .top.dge button, .hsp .top.dge .w, .vc .cap.dge, .vc .cap.dge .w { color: #a8a8a8 !important; -webkit-text-fill-color: #a8a8a8 !important; }
+.hsp .top.brn .hv .w, .hsp .top.dge .hv .w { opacity: 0 !important; }
+.vc[href="#museum-for-abstract-art"] .cap.brn, .vc[href="#museum-for-abstract-art"] .cap.dge, .vc:hover .cap.brn, .vc:hover .cap.dge, .vc:focus-visible .cap.brn, .vc:focus-visible .cap.dge { visibility: hidden; }
 </style>
 
 <div id="app"></div>
@@ -1179,7 +1195,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   function topDim() {
     var t = document.querySelector('.hsp .top:not(.dim):not(.blk)'); if (!t) return;
     /* 23.11.: zweite Kopie .blk in reinem Schwarz: zeigt nur das Wort unter der Maus (wie beim Index), das invertierte Original wird dafür ausgeblendet */
-    ['blk', 'dim'].forEach(function (k) {
+    ['blk', 'dim', 'yel', 'dge', 'brn', 'sat'].forEach(function (k) { /* 24.11.: sat + yel = Umfärbung (dunkel -> neongelb, hell -> schwarz) */
       var c = t.cloneNode(true); c.classList.add(k); c.setAttribute('aria-hidden', 'true');
       c.querySelectorAll('*').forEach(function (e) { ['data-index', 'data-lang', 'data-fk', 'href', 'id', 'aria-controls', 'aria-expanded', 'aria-pressed'].forEach(function (a) { e.removeAttribute(a); }); if (e.matches('a, button')) e.tabIndex = -1; });
       t.parentNode.insertBefore(c, t.nextSibling);
@@ -1189,7 +1205,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     var a = e.target.closest && e.target.closest('.hsp .top:not(.dim):not(.blk) a, .hsp .top:not(.dim):not(.blk) button'); if (!a) return;
     var t = a.closest('.top'), i = Array.prototype.indexOf.call(t.querySelectorAll('a, button'), a);
     a.classList.toggle('hvo', on);
-    ['.top.dim', '.top.blk'].forEach(function (q) { var d = t.parentNode.querySelector(q), b = d && d.querySelectorAll('a, button')[i]; if (b) b.classList.toggle('hv', on); });
+    t.parentNode.querySelectorAll('.top.dim, .top.blk, .top.sat, .top.brn, .top.dge, .top.yel').forEach(function (d) { var b = d.querySelectorAll('a, button')[i]; if (b) b.classList.toggle('hv', on); });
   }
   document.addEventListener('mouseover', function (e) { dimHover(e, true); });
   document.addEventListener('mouseout', function (e) { dimHover(e, false); });
@@ -1214,6 +1230,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     if (route !== 'contact') strokes = [];
     if (route !== 'portfolio') document.body.style.backgroundPosition = '';
     setRc(); hsLayout(); ixPlace(); initBoard(); topDim();
+    app.querySelectorAll('.vc > .cap').forEach(function (c) { ['yel', 'dge', 'brn', 'sat'].forEach(function (k) { var d = c.cloneNode(true); d.classList.add(k); d.setAttribute('aria-hidden', 'true'); c.parentNode.insertBefore(d, c.nextSibling); }); }); /* 24.11.: Umfärbung auch für die Projekttitel */
     if (typeof atTop === 'function') { atTop(); setTimeout(atTop, 0); }
     /* 23.11.: new menu bar starts at the size of the old one and grows / shrinks to its own size (e.g. project page -> start page) */
     var tops = app.querySelectorAll('.top'), newFs = tops[0] ? getComputedStyle(tops[0]).fontSize : null;
