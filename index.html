@@ -565,7 +565,8 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
 @media (min-width: 701px) {
   html.home.attop .hsp .top, html.home.attop .ix a { font-size: clamp(1.1rem, 1.8vw, 1.7rem); }
   html.home .hsp .top, html.home .ix a { transition: font-size 0.4s cubic-bezier(0.3, 0.6, 0.3, 1); }
-  html.noanim .hsp .top, html.noanim .ix a { transition: none !important; }
+  html.noanim .ix a { transition: none !important; }
+  .top { transition: font-size 0.4s cubic-bezier(0.3, 0.6, 0.3, 1); } /* 23.11.: beim Wechsel zwischen Startseite und den anderen Seiten wächst bzw. schrumpft die Menüleiste */
 }
 /* 23.11.: Startseite: Wort in der Menüleiste unter der Maus immer in reinem Schwarz (wie beim Index): schwarze Kopie zeigt nur dieses Wort, das invertierte Original wird ausgeblendet */
 .hsp .top.blk { mix-blend-mode: normal; z-index: 42; }
@@ -1201,6 +1202,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     document.documentElement.lang = lang;
     document.documentElement.classList.add('noanim'); document.documentElement.classList.toggle('home', route === 'portfolio'); setTimeout(function () { document.documentElement.classList.remove('noanim'); }, 120); /* 23.11.: Menüleiste springt beim Seitenwechsel ohne Animation auf ihre Größe */
     document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'de'); /* 19.11.: deutsche Seite dunkel, englische Seite weiß */
+    var oldTop = document.querySelector('.top:not(.dim):not(.blk)'), oldFs = oldTop ? getComputedStyle(oldTop).fontSize : null;
     var main = route === 'project' ? project(idx) : route === 'about' ? about() : route === 'contact' ? contact() : route === 'press' ? pressPage(id) : home();
     app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
     setTimeout(gsZoom, 0); setTimeout(gsZoom, 400);
@@ -1211,6 +1213,14 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     if (route !== 'portfolio') document.body.style.backgroundPosition = '';
     setRc(); hsLayout(); ixPlace(); initBoard(); topDim();
     if (typeof atTop === 'function') { atTop(); setTimeout(atTop, 0); }
+    /* 23.11.: new menu bar starts at the size of the old one and grows / shrinks to its own size (e.g. project page -> start page) */
+    var tops = app.querySelectorAll('.top'), newFs = tops[0] ? getComputedStyle(tops[0]).fontSize : null;
+    if (oldFs && newFs && oldFs !== newFs && window.innerWidth > 700) {
+      [].forEach.call(tops, function (t) { t.style.transition = 'none'; t.style.fontSize = oldFs; });
+      void app.offsetWidth;
+      [].forEach.call(tops, function (t) { t.style.transition = ''; t.style.fontSize = ''; });
+      var t0 = performance.now(); (function f() { ixPlace(); if (performance.now() - t0 < 450) requestAnimationFrame(f); })();
+    }
     if (active) { var el = app.querySelector('[data-fk="' + active + '"]'); if (el) el.focus({ preventScroll: true }); }
   }
 
