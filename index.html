@@ -471,6 +471,8 @@ html.away .w, .still .w { animation: none !important; }
 #ixc .w { color: #000 !important; animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
 @media (prefers-reduced-motion: reduce) { #ixc .w { animation: none; } }
 html.away #ixc .w { animation: none; }
+/* 23.11.: Menüleiste und Index-Liste am Computer in derselben Schriftgröße wie der Text auf der ganzen Seite; die Mitte zwischen arends und index bleibt auf der Achse */
+@media (min-width: 701px) { .top, .hsp .top, .ix a { font-size: 1.1rem; } }
 /* 19.11.: phone only: no dash after the name, bigger menu bar whose second line (index … de) runs from the left to the right edge, index titles in the same size */
 @media (max-width: 700px) {
   .top .dash, .hsp .top .dash { display: none; }
