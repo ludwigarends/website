@@ -174,6 +174,8 @@ a:hover .w, a:focus-visible .w, button:hover .w, button:focus-visible .w, .about
 .cap.muted { color: var(--muted); }
 /* 23.11.: Großansicht wächst aus dem Bild heraus; Bilder in den Galerien verschiebbar */
 .lb img, .lb video { will-change: transform; }
+/* 23.11.: kein Schatten hinter dem geöffneten Bild */
+.lb img, .lb video, html.dk .lb img, html.dk .lb video, .lb img[src*="-cut"], html.dk .lb img[src*="-cut"], html.dk.vC .lb img[src*="-cut"] { box-shadow: none !important; filter: none !important; }
 .lb img { cursor: zoom-out; }
 .gs .gs-item { position: relative; touch-action: pan-x pan-y; }
 .gs .gs-item.drag { z-index: 6; }
@@ -396,7 +398,7 @@ footer, .vcopy { font-weight: 500; }
 .vc[href="#museum-for-abstract-art"]:not(:hover):not(:focus-visible) .cap .w { color: #2b2e31 !important; }
 /* titles underlined, hover unchanged */
 .pinfo h1, .about h2, .pinfo h1 .w, .about h2 .w { text-decoration: underline; text-decoration-thickness: 0.08em; text-underline-offset: 0.14em; }
-.vc .cap { font-size: 0.78rem; }
+.vc .cap { font-size: 1.1rem; } /* 23.11.: Titel auf der Startseite so groß wie auf den Projektseiten (vorher 0.78rem) */
 .pinfo h1 { line-height: 1.35; }
 .pinfo .sub { margin: 0; }
 .pinfo .lines { margin: 0.55em 0 0; }
@@ -469,8 +471,6 @@ html.away .w, .still .w { animation: none !important; }
 #ixc .w { color: #000 !important; animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
 @media (prefers-reduced-motion: reduce) { #ixc .w { animation: none; } }
 html.away #ixc .w { animation: none; }
-/* 23.11.: Menüleiste am Computer in derselben Schriftgröße wie der Text auf der ganzen Seite (z. B. about); die Mitte zwischen arends und index bleibt auf der Achse */
-@media (min-width: 701px) { .top, .hsp .top { font-size: 1.1rem; } }
 /* 19.11.: phone only: no dash after the name, bigger menu bar whose second line (index … de) runs from the left to the right edge, index titles in the same size */
 @media (max-width: 700px) {
   .top .dash, .hsp .top .dash { display: none; }
