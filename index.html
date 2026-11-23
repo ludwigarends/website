@@ -172,6 +172,14 @@ a:hover .w, a:focus-visible .w, button:hover .w, button:focus-visible .w, .about
 .lb img { box-shadow: 0 6px 40px rgba(0,0,0,.28); background: var(--bg); max-width: calc(100% - clamp(64px, 10vw, 150px)); cursor: default; max-height: calc(100vh - clamp(150px, 20vh, 260px)); max-height: calc(100dvh - clamp(150px, 20dvh, 260px)); width: auto; height: auto; object-fit: contain; }
 .lb span { font-size: 0.72rem; color: var(--muted); }
 .cap.muted { color: var(--muted); }
+/* 23.11.: Großansicht wächst aus dem Bild heraus; Bilder in den Galerien verschiebbar */
+.lb img, .lb video { will-change: transform; }
+.lb img { cursor: zoom-out; }
+.gs .gs-item { position: relative; touch-action: pan-x pan-y; }
+.gs .gs-item.drag { z-index: 6; }
+.gs .gs-item.drag, .gs .gs-item.drag * { cursor: grabbing !important; }
+html.gsdragging, html.gsdragging * { user-select: none; -webkit-user-select: none; }
+.gs .gs-item img { -webkit-user-drag: none; -webkit-touch-callout: none; }
 
 .ph { display: block; width: 100%; aspect-ratio: var(--ar, 1 / 1); background: var(--ph-a); overflow: hidden; }
 .ph svg { display: block; width: 100%; height: 100%; }
@@ -1195,36 +1203,98 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     }
   });
 
-  var lbList = [], lbIdx = 0;
-  function closeLb() { var l = document.querySelector('.lb'); if (l) l.remove(); }
-  function showLb(n) {
-    lbIdx = (n + lbList.length) % lbList.length;
+  /* 23.11.: Großansicht wie in der Bildschirmaufnahme: das Bild wächst aus seiner Stelle auf der Seite heraus und schrumpft beim Schließen
+     wieder dorthin zurück. Kein Weiterblättern mehr (Pfeile und Pfeiltasten entfernt); geschlossen wird durch Klick auf das Bild oder daneben. */
+  var lbSrc = null, lbBusy = false, LBE = 'cubic-bezier(.2,.75,.15,1)', LBT = 480;
+  function lbThumb(z) { return (z && (z.querySelector('.im, .vid') || z)) || null; }
+  function lbFrom(m, z) {
+    var t = z && z.isConnected ? (z.closest('[data-zt]') ? z : lbThumb(z)) : null; if (!t) return null;
+    var r0 = t.getBoundingClientRect(), r1 = m.getBoundingClientRect();
+    if (!r0.width || !r1.width || r0.bottom < 0 || r0.top > window.innerHeight || r0.right < 0 || r0.left > window.innerWidth) return null;
+    return 'translate(' + (r0.left - r1.left) + 'px,' + (r0.top - r1.top) + 'px) scale(' + (r0.width / r1.width) + ',' + (r0.height / r1.height) + ')';
+  }
+  function closeLb(now) {
     var l = document.querySelector('.lb'); if (!l) return;
-    var cur = l.querySelector('img, video'), src = lbList[lbIdx], isV = /\.(mp4|webm|mov)$/i.test(src), n2;
-    if (cur && cur.tagName === 'VIDEO') cur.pause();
+    var m = l.querySelector('img, video'), z = l._z;
+    if (now === true || !m) { if (z) z.style.visibility = ''; l.remove(); lbBusy = false; return; }
+    if (l._closing) return; l._closing = true;
+    if (m.tagName === 'VIDEO') { m.controls = false; m.pause(); }
+    var tf = lbFrom(m, z);
+    m.style.transformOrigin = '0 0';
+    m.style.transition = 'transform ' + LBT + 'ms ' + LBE + ', box-shadow ' + LBT + 'ms ' + LBE + (tf ? '' : ', opacity ' + LBT + 'ms ' + LBE);
+    requestAnimationFrame(function () {
+      if (tf) { m.style.transform = tf; m.style.boxShadow = 'none'; } else { m.style.opacity = '0'; m.style.transform = 'scale(.96)'; }
+    });
+    setTimeout(function () { if (z) z.style.visibility = ''; l.remove(); }, LBT + 20);
+  }
+  function openLb(z) {
+    closeLb(true);
+    var src = z.getAttribute('data-zoom'), isV = /\.(mp4|webm|mov)$/i.test(src), m;
+    var l = document.createElement('div');
+    l.className = 'lb'; l.setAttribute('role', 'dialog'); l.setAttribute('aria-label', 'image'); l._z = z;
     if (isV) {
-      n2 = document.createElement('video'); n2.src = src; n2.controls = true; n2.autoplay = true; n2.loop = true; n2.setAttribute('playsinline', '');
-      var src0 = document.querySelector('[data-zoom="' + src + '"]'); if (src0 && src0.getAttribute('data-poster')) n2.poster = src0.getAttribute('data-poster');
-      cur.replaceWith(n2); var pr = n2.play(); if (pr && pr.catch) pr.catch(function () {});
-    } else if (cur.tagName === 'VIDEO') { n2 = document.createElement('img'); n2.alt = ''; n2.src = src; cur.replaceWith(n2); }
-    else cur.src = src;
-    var lim = l.querySelector('img'); if (lim) lim.classList.toggle('wb', !!WB[src]);
+      m = document.createElement('video'); m.src = src; m.controls = true; m.autoplay = true; m.loop = true; m.muted = false; m.setAttribute('playsinline', '');
+      if (z.getAttribute('data-poster')) m.poster = z.getAttribute('data-poster');
+      var tv = z.querySelector('video'); if (tv && tv.currentTime) { try { m.currentTime = tv.currentTime; } catch (x) {} }
+    } else { m = document.createElement('img'); m.alt = ''; m.src = src; if (WB[src]) m.className = 'wb'; }
+    m.style.opacity = '0';
+    l.appendChild(m); document.body.appendChild(l); lbSrc = src;
+    var go = function () {
+      if (!l.isConnected || l._go) return; l._go = true;
+      var tf = lbFrom(m, z);
+      m.style.transformOrigin = '0 0';
+      if (tf) { m.style.transform = tf; m.style.boxShadow = 'none'; z.style.visibility = 'hidden'; } else m.style.transform = 'scale(.96)';
+      void m.offsetWidth; m.style.opacity = '1';
+      m.style.transition = 'transform ' + LBT + 'ms ' + LBE + ', box-shadow ' + LBT + 'ms ' + LBE + (tf ? '' : ', opacity ' + LBT + 'ms ' + LBE);
+      requestAnimationFrame(function () { m.style.transform = ''; m.style.boxShadow = ''; });
+      if (isV) { var pr = m.play(); if (pr && pr.catch) pr.catch(function () { m.muted = true; m.play().catch(function () {}); }); }
+    };
+    if (isV) { if (m.readyState >= 1) go(); else m.addEventListener('loadedmetadata', go); }
+    else if (m.complete && m.naturalWidth) go(); else { m.addEventListener('load', go); m.addEventListener('error', go); }
+    setTimeout(go, 1500);
   }
   document.addEventListener('click', function (e) {
     var t = e.target, z = t.closest && t.closest('[data-zoom]');
-    if (z) {
-      closeLb();
-      lbList = [].map.call(document.querySelectorAll('[data-zoom]'), function (x) { return x.getAttribute('data-zoom'); });
-      var l = document.createElement('div');
-      l.className = 'lb'; l.setAttribute('role', 'dialog'); l.setAttribute('aria-label', 'image');
-      l.innerHTML = '<button class="lbx prev" type="button" aria-label="previous">' + arr('l') + '</button><img src="" alt=""><button class="lbx next" type="button" aria-label="next">' + arr('r') + '</button>';
-      document.body.appendChild(l);
-      showLb(lbList.indexOf(z.getAttribute('data-zoom')));
-    } else if (t.closest && t.closest('.lbx')) {
-      showLb(lbIdx + (t.closest('.lbx').classList.contains('next') ? 1 : -1));
-    } else if (t.closest && t.closest('.lb video')) { /* controls handle clicks */ }
+    if (z && !z.closest('.lb')) { if (gsDragged) { gsDragged = false; return; } openLb(z); }
+    else if (t.closest && t.closest('.lb video') && !t.closest('.lb')._closing && e.offsetY < t.closest('.lb video').clientHeight - 48) { closeLb(); }
+    else if (t.closest && t.closest('.lb video')) { /* controls handle clicks */ }
     else if (t.closest && t.closest('.lb')) { closeLb(); }
   });
+  /* 23.11.: Bilder in den horizontalen Galerien mit gedrückter Maus verschieben (auf dem Handy: kurz gedrückt halten, dann ziehen).
+     Ein kurzer Klick öffnet weiter die Großansicht. Größe der Bilder bleibt unverändert; nach dem Neuladen liegen sie wieder an ihrem Platz. */
+  var gsDrag = null, gsDragged = false, gsHold = 0;
+  function gsDragStart(d) { d.on = true; d.it.classList.add('drag'); document.documentElement.classList.add('gsdragging'); }
+  document.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0) return;
+    var it = e.target.closest && e.target.closest('.gs .gs-item'); if (!it || !it.querySelector('[data-zoom]') && !it.hasAttribute('data-zoom')) return;
+    gsDragged = false;
+    gsDrag = { it: it, id: e.pointerId, x: e.clientX, y: e.clientY, ox: +(it.dataset.dx || 0), oy: +(it.dataset.dy || 0), touch: e.pointerType !== 'mouse', on: false };
+    if (!gsDrag.touch) e.preventDefault();
+    else { clearTimeout(gsHold); gsHold = setTimeout(function () { if (gsDrag && !gsDrag.on && !gsDrag.cancel) gsDragStart(gsDrag); }, 350); }
+  });
+  document.addEventListener('pointermove', function (e) {
+    var d = gsDrag; if (!d || e.pointerId !== d.id) return;
+    var mx = e.clientX - d.x, my = e.clientY - d.y;
+    if (!d.on) {
+      if (Math.abs(mx) + Math.abs(my) < 6) return;
+      if (d.touch) { d.cancel = true; clearTimeout(gsHold); gsDrag = null; return; } /* finger moved before holding: normal swipe through the gallery */
+      gsDragStart(d);
+    }
+    gsDragged = true;
+    d.it.dataset.dx = d.ox + mx; d.it.dataset.dy = d.oy + my;
+    d.it.style.translate = (d.ox + mx) + 'px ' + (d.oy + my) + 'px';
+  });
+  function gsDragEnd(e) {
+    var d = gsDrag; if (!d || (e && e.pointerId !== d.id)) return;
+    clearTimeout(gsHold); gsDrag = null;
+    d.it.classList.remove('drag'); document.documentElement.classList.remove('gsdragging');
+    if (!gsDragged) return;
+    setTimeout(function () { gsDragged = false; }, 0);
+  }
+  document.addEventListener('pointerup', gsDragEnd); document.addEventListener('pointercancel', gsDragEnd);
+  document.addEventListener('touchmove', function (e) { if (gsDrag && gsDrag.on) e.preventDefault(); }, { passive: false });
+  document.addEventListener('dragstart', function (e) { if (e.target.closest && e.target.closest('.gs')) e.preventDefault(); });
+  document.addEventListener('contextmenu', function (e) { if (gsDrag && gsDrag.on) e.preventDefault(); });
   /* sound on hover for gallery videos */
   document.addEventListener('mouseover', function (e) {
     var v = e.target.closest && e.target.closest('.gs-item .vid'); if (!v || v.dataset.hov || v.classList.contains('scrub')) return;
@@ -1237,10 +1307,8 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   document.addEventListener('keydown', function (e) {
     if (!document.querySelector('.lb')) return;
     if (e.key === 'Escape') closeLb();
-    else if (e.key === 'ArrowRight') showLb(lbIdx + 1);
-    else if (e.key === 'ArrowLeft') showLb(lbIdx - 1);
   });
-  window.addEventListener('hashchange', function () { closeLb(); });
+  window.addEventListener('hashchange', function () { closeLb(true); });
   document.addEventListener('click', function (e) {
     var t = e.target;
     if (t.closest && t.closest('[data-index]')) ixSet(window.matchMedia('(hover: hover)').matches ? true : !indexOpen);
