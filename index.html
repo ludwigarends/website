@@ -561,6 +561,20 @@ html.attop body:not(.ixopen) .hsp .top.dim { visibility: visible; }
 @media (prefers-reduced-motion: reduce) { .hsp .top.dim .hv .w { animation: none; } }
 
 html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4XmNgYGBgAAAABQABGWkDzwAAAABJRU5ErkJggg==") 0 0, none !important; } /* 19.11.: invisible image cursor: Safari no longer brings the system arrow back while scrolling */
+/* 23.11.: Startseite: ganz oben Menüleiste und Index in der großen Größe von früher, beim Runterscrollen werden beide klein (Textgröße) */
+@media (min-width: 701px) {
+  html.home.attop .hsp .top, html.home.attop .ix a { font-size: clamp(1.1rem, 1.8vw, 1.7rem); }
+  html.home .hsp .top, html.home .ix a { transition: font-size 0.4s cubic-bezier(0.3, 0.6, 0.3, 1); }
+  html.noanim .hsp .top, html.noanim .ix a { transition: none !important; }
+}
+/* 23.11.: Startseite: Wort in der Menüleiste unter der Maus immer in reinem Schwarz (wie beim Index): schwarze Kopie zeigt nur dieses Wort, das invertierte Original wird ausgeblendet */
+.hsp .top.blk { mix-blend-mode: normal; z-index: 42; }
+.hsp .top.blk, .hsp .top.blk * { pointer-events: none !important; visibility: hidden; }
+.hsp .top.blk .hv, .hsp .top.blk .hv * { visibility: visible; }
+.hsp .top.blk a, .hsp .top.blk button, .hsp .top.blk .w, .hsp .top.blk a .w, .hsp .top.blk button .w { color: #000 !important; -webkit-text-fill-color: #000 !important; -webkit-mask-image: none !important; mask-image: none !important; }
+.hsp .top.blk .hv .w { animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
+.hsp .top .hvo .w, .hsp .top.dim .hv .w { opacity: 0 !important; }
+@media (prefers-reduced-motion: reduce) { .hsp .top.blk .hv .w { animation: none; } }
 </style>
 
 <div id="app"></div>
@@ -1160,16 +1174,19 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   }
   /* 20.11.: dunkle Kopie der Startseiten-Menüleiste (30 % Schwarz über dem invertierten Effekt) */
   function topDim() {
-    var t = document.querySelector('.hsp .top:not(.dim)'); if (!t) return;
-    var c = t.cloneNode(true); c.classList.add('dim'); c.setAttribute('aria-hidden', 'true');
-    c.querySelectorAll('*').forEach(function (e) { ['data-index', 'data-lang', 'data-fk', 'href', 'id', 'aria-controls', 'aria-expanded', 'aria-pressed'].forEach(function (a) { e.removeAttribute(a); }); if (e.matches('a, button')) e.tabIndex = -1; });
-    t.parentNode.insertBefore(c, t.nextSibling);
+    var t = document.querySelector('.hsp .top:not(.dim):not(.blk)'); if (!t) return;
+    /* 23.11.: zweite Kopie .blk in reinem Schwarz: zeigt nur das Wort unter der Maus (wie beim Index), das invertierte Original wird dafür ausgeblendet */
+    ['blk', 'dim'].forEach(function (k) {
+      var c = t.cloneNode(true); c.classList.add(k); c.setAttribute('aria-hidden', 'true');
+      c.querySelectorAll('*').forEach(function (e) { ['data-index', 'data-lang', 'data-fk', 'href', 'id', 'aria-controls', 'aria-expanded', 'aria-pressed'].forEach(function (a) { e.removeAttribute(a); }); if (e.matches('a, button')) e.tabIndex = -1; });
+      t.parentNode.insertBefore(c, t.nextSibling);
+    });
   }
   function dimHover(e, on) {
-    var a = e.target.closest && e.target.closest('.hsp .top:not(.dim) a, .hsp .top:not(.dim) button'); if (!a) return;
-    var t = a.closest('.top'), d = t.parentNode.querySelector('.top.dim'); if (!d) return;
-    var i = Array.prototype.indexOf.call(t.querySelectorAll('a, button'), a), b = d.querySelectorAll('a, button')[i];
-    if (b) b.classList.toggle('hv', on);
+    var a = e.target.closest && e.target.closest('.hsp .top:not(.dim):not(.blk) a, .hsp .top:not(.dim):not(.blk) button'); if (!a) return;
+    var t = a.closest('.top'), i = Array.prototype.indexOf.call(t.querySelectorAll('a, button'), a);
+    a.classList.toggle('hvo', on);
+    ['.top.dim', '.top.blk'].forEach(function (q) { var d = t.parentNode.querySelector(q), b = d && d.querySelectorAll('a, button')[i]; if (b) b.classList.toggle('hv', on); });
   }
   document.addEventListener('mouseover', function (e) { dimHover(e, true); });
   document.addEventListener('mouseout', function (e) { dimHover(e, false); });
@@ -1182,6 +1199,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     var route = idx > -1 ? 'project' : (id === 'about' ? 'about' : id === 'contact' ? 'contact' : (id === 'press-release' || id === 'dab-blatt') ? 'press' : 'portfolio');
     var active = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute('data-fk') : null;
     document.documentElement.lang = lang;
+    document.documentElement.classList.add('noanim'); document.documentElement.classList.toggle('home', route === 'portfolio'); setTimeout(function () { document.documentElement.classList.remove('noanim'); }, 120); /* 23.11.: Menüleiste springt beim Seitenwechsel ohne Animation auf ihre Größe */
     document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'de'); /* 19.11.: deutsche Seite dunkel, englische Seite weiß */
     var main = route === 'project' ? project(idx) : route === 'about' ? about() : route === 'contact' ? contact() : route === 'press' ? pressPage(id) : home();
     app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
@@ -1192,7 +1210,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     if (route !== 'contact') strokes = [];
     if (route !== 'portfolio') document.body.style.backgroundPosition = '';
     setRc(); hsLayout(); ixPlace(); initBoard(); topDim();
-    if (typeof atTop === 'function') setTimeout(atTop, 0);
+    if (typeof atTop === 'function') { atTop(); setTimeout(atTop, 0); }
     if (active) { var el = app.querySelector('[data-fk="' + active + '"]'); if (el) el.focus({ preventScroll: true }); }
   }
 
@@ -1432,7 +1450,13 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   });
 
   document.documentElement.classList.add('vC'); /* Zeichnungen auf der dunklen Seite im Negativ */
-  function atTop() { document.documentElement.classList.toggle('attop', (window.scrollY || 0) <= 4); }
+  function atTop() {
+    var r = document.documentElement, was = r.classList.contains('attop'), now = (window.scrollY || 0) <= 4;
+    r.classList.toggle('attop', now);
+    if (was !== now && r.classList.contains('home') && !r.classList.contains('noanim')) { /* 23.11.: while the menu bar grows or shrinks, keep the index panel attached to it */
+      var t0 = performance.now(); (function f() { ixPlace(); if (performance.now() - t0 < 450) requestAnimationFrame(f); })();
+    }
+  }
   window.addEventListener('scroll', atTop, { passive: true });
   window.addEventListener('hashchange', render);
   if (/[?&]sent=1/.test(location.search)) setTimeout(function () { var n = document.querySelector('#cf .fn'); if (n) n.textContent = ui('fsent'); history.replaceState(null, '', location.pathname + location.hash); }, 300);
