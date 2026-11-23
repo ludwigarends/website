@@ -594,6 +594,13 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
 .hsp .top.brn a, .hsp .top.brn button, .hsp .top.brn .w, .vc .cap.brn, .vc .cap.brn .w, .hsp .top.dge a, .hsp .top.dge button, .hsp .top.dge .w, .vc .cap.dge, .vc .cap.dge .w { color: #a8a8a8 !important; -webkit-text-fill-color: #a8a8a8 !important; }
 .hsp .top.brn .hv .w, .hsp .top.dge .hv .w { opacity: 0 !important; }
 .vc[href="#museum-for-abstract-art"] .cap.brn, .vc[href="#museum-for-abstract-art"] .cap.dge, .vc:hover .cap.brn, .vc:hover .cap.dge, .vc:focus-visible .cap.brn, .vc:focus-visible .cap.dge { visibility: hidden; }
+/* 24.11. spät: Startseite: alle Schrift einfach neongelb, ohne Invertierung (Wort unter der Maus bleibt schwarz) */
+html body .hsp .top:not(.dim):not(.blk), html body .vc .cap, html body .vcopy { mix-blend-mode: normal !important; }
+html body .hsp, html body .hsp *:not(.blk):not(.blk *) { color: #e6ff00 !important; -webkit-text-fill-color: #e6ff00 !important; }
+/* 24.11. spät: Startseite: beim Drüberfahren kein Farbwechsel mehr (bleibt neongelb, keine Markierung), Wort wackelt nur */
+html body .hsp .top.blk { display: none !important; }
+html body .hsp .top .hvo .w { opacity: 1 !important; }
+html body .hsp .top a:hover .w, html body .hsp .top button:hover .w, html body .hsp .top a:focus-visible .w, html body .hsp .top button:focus-visible .w, html body .hsp a:hover .w, html body .hsp button:hover .w, html body .hsp a:focus-visible .w, html body .hsp button:focus-visible .w, html body .hsp .vc:hover .cap .w, html body .hsp .vc:focus-visible .cap .w { color: #e6ff00 !important; -webkit-text-fill-color: #e6ff00 !important; background: none !important; animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
 </style>
 
 <div id="app"></div>
@@ -1195,7 +1202,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   function topDim() {
     var t = document.querySelector('.hsp .top:not(.dim):not(.blk)'); if (!t) return;
     /* 23.11.: zweite Kopie .blk in reinem Schwarz: zeigt nur das Wort unter der Maus (wie beim Index), das invertierte Original wird dafür ausgeblendet */
-    ['blk', 'dim', 'dge', 'brn', 'sat'].forEach(function (k) { /* 24.11.: sat + brn + dge = verstärkte Invertierung in Schwarz-Weiß (dunkel -> weiß, hell -> schwarz) */
+    ['blk', 'dim'].forEach(function (k) { /* 24.11. spät: Startseite einfach neongelb, Invertierungs-Schichten sat/brn/dge nicht mehr nötig */
       var c = t.cloneNode(true); c.classList.add(k); c.setAttribute('aria-hidden', 'true');
       c.querySelectorAll('*').forEach(function (e) { ['data-index', 'data-lang', 'data-fk', 'href', 'id', 'aria-controls', 'aria-expanded', 'aria-pressed'].forEach(function (a) { e.removeAttribute(a); }); if (e.matches('a, button')) e.tabIndex = -1; });
       t.parentNode.insertBefore(c, t.nextSibling);
@@ -1230,7 +1237,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     if (route !== 'contact') strokes = [];
     if (route !== 'portfolio') document.body.style.backgroundPosition = '';
     setRc(); hsLayout(); ixPlace(); initBoard(); topDim();
-    app.querySelectorAll('.vc > .cap').forEach(function (c) { ['dge', 'brn', 'sat'].forEach(function (k) { var d = c.cloneNode(true); d.classList.add(k); d.setAttribute('aria-hidden', 'true'); c.parentNode.insertBefore(d, c.nextSibling); }); }); /* 24.11.: Umfärbung auch für die Projekttitel */
+    if (false) app.querySelectorAll('.vc > .cap').forEach(function (c) { ['dge', 'brn', 'sat'].forEach(function (k) { var d = c.cloneNode(true); d.classList.add(k); d.setAttribute('aria-hidden', 'true'); c.parentNode.insertBefore(d, c.nextSibling); }); }); /* 24.11.: Umfärbung auch für die Projekttitel */
     if (typeof atTop === 'function') { atTop(); setTimeout(atTop, 0); }
     /* 23.11.: new menu bar starts at the size of the old one and grows / shrinks to its own size (e.g. project page -> start page) */
     var tops = app.querySelectorAll('.top'), newFs = tops[0] ? getComputedStyle(tops[0]).fontSize : null;
