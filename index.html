@@ -978,9 +978,9 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     /* 24.11.: Projektseite am Computer zweigeteilt: links Titel, Text und Knöpfe (eigener Scroll), rechts die Galerie senkrecht (eigener Scroll); am Handy wie bisher */
     return '<main class="plm"><div class="pl-l"><section class="pinfo"><div>' + left + '</div><div>' + right + '</div></section>' +
       '<nav class="pager g2" aria-label="projects"><a href="#portfolio">' + arr('l') + ' ' + words(ui('overview')) + '</a><a class="next" href="#' + next.id + '">' + words(ui('nextp')) + ' ' + arr('r') + '</a></nav>' +
-      '<div class="plb"><a href="#portfolio">' + arr('l') + ' ' + words(ui('overview')) + '</a><span class="cp">©2026 ludwig anton arends</span></div></div>' +
+      '<div class="plb"><a href="#portfolio">' + arr('l') + ' ' + words(ui('overview')) + '</a></div></div>' + /* 24.11.: © und all rights reserved auf den Projektseiten entfernt */
       '<div class="pl-r"><div class="gs" tabindex="-1">' + gal + '</div>' + gal2 +
-      '<div class="plb"><a class="next" href="#' + next.id + '">' + words(ui('nextp')) + ' ' + arr('r') + '</a><span class="cp">' + ui('rights') + '</span></div></div></main>';
+      '<div class="plb"><a class="next" href="#' + next.id + '">' + words(ui('nextp')) + ' ' + arr('r') + '</a></div></div></main>';
   }
 
   function rows(list) {
@@ -1265,7 +1265,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'de'); /* 19.11.: deutsche Seite dunkel, englische Seite weiß */
     var oldTop = document.querySelector('.top:not(.dim):not(.blk)'), oldFs = oldTop ? getComputedStyle(oldTop).fontSize : null;
     var main = route === 'project' ? project(idx) : route === 'about' ? about() : route === 'contact' ? contact() : route === 'press' ? pressPage(id) : home();
-    app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : route === 'project' ? ' pp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
+    app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : route === 'project' ? ' pp' : '') + '">' + top(route) + main + (route === 'portfolio' || route === 'project' ? '' : footer()) + '</div>' + ixPanel();
     document.documentElement.classList.toggle('ppage', route === 'project');
     if (route === 'project') { var plf = app.querySelector('.wrap.pp > footer'), pll = app.querySelector('.pl-l'); if (plf && pll) pll.appendChild(plf); } /* copyright line under the buttons in the left half */
     plTop();
