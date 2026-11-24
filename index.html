@@ -539,17 +539,20 @@ svg.ar.u { height: 0.886em; vertical-align: -0.22em; }
   html.ppage, html.ppage body { height: 100%; overflow: hidden; }
   .wrap.pp { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
   .wrap.pp > .top { flex: none; }
-  .plm { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin-top: clamp(24px, 4vw, 56px); }
+  :root { --pgap: clamp(24px, 4vw, 56px); }
+  .plm { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin-top: var(--pgap); }
   .pl-l, .pl-r { min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; }
   .pl-l::-webkit-scrollbar, .pl-r::-webkit-scrollbar { display: none; }
   .pl-l { padding-right: var(--d); display: flex; flex-direction: column; }
+  /* 24.11.: auch die linke Hälfte reicht von ganz oben bis ganz unten, der Text läuft beim Scrollen hinter der Menüleiste durch statt hinter einer weißen Fläche zu verschwinden */
+  .pl-l { position: fixed; top: 0; bottom: 0; left: 0; right: 50%; z-index: 1; padding-top: var(--plt, 130px); padding-left: max(var(--gut), env(safe-area-inset-left, 0px)); }
   /* 24.11.: Galerie randlos über die ganze rechte Bildschirmhälfte (von der Mitte bis zum rechten Rand) und von ganz oben bis ganz unten: beim Scrollen laufen die Bilder hinter der Menüleiste durch, die sich darüber invertiert */
   .pl-r { position: fixed; top: 0; bottom: 0; left: 50%; right: 0; z-index: 1; padding: var(--plt, 130px) 0 0; }
   .wrap.pp > .top { z-index: 5; mix-blend-mode: difference; color: #fff; }
   .wrap.pp > .top a, .wrap.pp > .top button, .wrap.pp > .top .w, .wrap.pp > .top a:hover .w, .wrap.pp > .top button:hover .w, .wrap.pp > .top a:focus-visible .w, .wrap.pp > .top button:focus-visible .w { color: #fff !important; -webkit-text-fill-color: #fff; }
   .plm .pinfo { display: block; margin-top: 0; }
   .plm .pinfo > div { padding: 0 !important; text-align: right; }
-  .plm .pinfo > div + div { margin-top: 1.35em; }
+  .plm .pinfo > div + div { margin-top: var(--pgap); } /* 24.11.: Abstand unter Titel/Untertitel/Angaben = Abstand zwischen Menüleiste und Titel */
   .plm .pinfo h1 { margin-left: auto; }
   .plm .pinfo p, .plm .body p { margin-left: auto; text-align: justify; text-align-last: right; hyphens: auto; }
   .plm .pinfo .lines span { display: block; }
@@ -1262,7 +1265,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     if (rest < D && lMax > 0) { var t = lMax - rest; if (l.scrollTop < t) l.scrollTop = t; }
   }, true);
   /* 24.11.: the right half (gallery) starts at the same height as the text on the left */
-  function plTop() { var l = document.querySelector('.pl-l'); if (l) document.documentElement.style.setProperty('--plt', Math.round(l.getBoundingClientRect().top + (window.scrollY || 0)) + 'px'); }
+  function plTop() { var l = document.querySelector('.plm'); if (l) document.documentElement.style.setProperty('--plt', Math.round(l.getBoundingClientRect().top + (window.scrollY || 0)) + 'px'); }
   window.addEventListener('resize', plTop);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(plTop);
   function render() {
