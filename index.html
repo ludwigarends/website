@@ -543,7 +543,10 @@ svg.ar.u { height: 0.886em; vertical-align: -0.22em; }
   .pl-l, .pl-r { min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; }
   .pl-l::-webkit-scrollbar, .pl-r::-webkit-scrollbar { display: none; }
   .pl-l { padding-right: var(--d); display: flex; flex-direction: column; }
-  .pl-r { padding-left: var(--d); }
+  /* 24.11.: Galerie randlos über die ganze rechte Bildschirmhälfte (von der Mitte bis zum rechten Rand) und von ganz oben bis ganz unten: beim Scrollen laufen die Bilder hinter der Menüleiste durch, die sich darüber invertiert */
+  .pl-r { position: fixed; top: 0; bottom: 0; left: 50%; right: 0; z-index: 1; padding: var(--plt, 130px) 0 0; }
+  .wrap.pp > .top { z-index: 5; mix-blend-mode: difference; color: #fff; }
+  .wrap.pp > .top a, .wrap.pp > .top button, .wrap.pp > .top .w, .wrap.pp > .top a:hover .w, .wrap.pp > .top button:hover .w, .wrap.pp > .top a:focus-visible .w, .wrap.pp > .top button:focus-visible .w { color: #fff !important; -webkit-text-fill-color: #fff; }
   .pl .pinfo { display: block; margin-top: 0; }
   .pl .pinfo > div { padding: 0 !important; text-align: right; }
   .pl .pinfo > div + div { margin-top: 1.35em; }
@@ -1237,6 +1240,10 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   document.addEventListener('mouseout', function (e) { dimHover(e, false); });
   document.addEventListener('focusin', function (e) { dimHover(e, true); });
   document.addEventListener('focusout', function (e) { dimHover(e, false); });
+  /* 24.11.: the right half (gallery) starts at the same height as the text on the left */
+  function plTop() { var l = document.querySelector('.pl-l'); if (l) document.documentElement.style.setProperty('--plt', Math.round(l.getBoundingClientRect().top + (window.scrollY || 0)) + 'px'); }
+  window.addEventListener('resize', plTop);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(plTop);
   function render() {
     var id = (location.hash || '').slice(1) || 'portfolio';
     var idx = -1;
@@ -1251,6 +1258,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : route === 'project' ? ' pp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
     document.documentElement.classList.toggle('ppage', route === 'project');
     if (route === 'project') { var plf = app.querySelector('.wrap.pp > footer'), pll = app.querySelector('.pl-l'); if (plf && pll) pll.appendChild(plf); } /* copyright line under the buttons in the left half */
+    plTop();
     setTimeout(gsZoom, 0); setTimeout(gsZoom, 400);
     document.title = route === 'project' ? P[idx].t + ' – ludwig anton arends' : route === 'press' ? 'press release – ludwig anton arends' : 'ludwig anton arends';
     if (lastRoute !== null && lastRoute !== id) window.scrollTo(0, 0);
