@@ -579,6 +579,10 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
 /* 24.11.: museum-Titel vor der ©-Zeile */
 .vc[href="#museum-for-abstract-art"] .cap { z-index: 4; }
 .vcopy.up { bottom: calc(clamp(14px, 1.6vw, 26px) + 1.1rem * 1.35 + 4px); }
+/* 24.11.: Maus auf dem Projektbild: Titel wird schwarz (ohne Invertierung) und zittert */
+html body .vc:hover .cap, html body .vc:focus-visible .cap { mix-blend-mode: normal !important; }
+html body .vc:hover .cap .w, html body .vc:focus-visible .cap .w { color: #000 !important; -webkit-text-fill-color: #000 !important; animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
+@media (prefers-reduced-motion: reduce) { html body .vc:hover .cap .w { animation: none; } }
 </style>
 
 <div id="app"></div>
