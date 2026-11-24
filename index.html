@@ -563,7 +563,7 @@ html.attop body:not(.ixopen) .hsp .top.dim { visibility: visible; }
 html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4XmNgYGBgAAAABQABGWkDzwAAAABJRU5ErkJggg==") 0 0, none !important; } /* 19.11.: invisible image cursor: Safari no longer brings the system arrow back while scrolling */
 /* 23.11.: Startseite: ganz oben Menüleiste und Index in der großen Größe von früher, beim Runterscrollen werden beide klein (Textgröße) */
 @media (min-width: 701px) {
-  /* 23.11. spät: auf Wunsch wieder entfernt – Menüleiste und Index auch auf der Startseite ganz oben in Textgröße (vorher: html.home.attop … clamp(1.1rem, 1.8vw, 1.7rem)) */
+  html.home.attop .hsp .top, html.home.attop .ix a { font-size: clamp(1.1rem, 1.8vw, 1.7rem); }
   html.home .hsp .top, html.home .ix a { transition: font-size 0.4s cubic-bezier(0.3, 0.6, 0.3, 1); }
   html.noanim .ix a { transition: none !important; }
   .top { transition: font-size 0.4s cubic-bezier(0.3, 0.6, 0.3, 1); } /* 23.11.: beim Wechsel zwischen Startseite und den anderen Seiten wächst bzw. schrumpft die Menüleiste */
@@ -576,13 +576,6 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
 .hsp .top.blk .hv .w { animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
 .hsp .top .hvo .w, .hsp .top.dim .hv .w { opacity: 0 !important; }
 @media (prefers-reduced-motion: reduce) { .hsp .top.blk .hv .w { animation: none; } }
-/* 24.11.: museum-Titel vor der ©-Zeile */
-.vc[href="#museum-for-abstract-art"] .cap { z-index: 4; }
-.vcopy.up { bottom: calc(clamp(14px, 1.6vw, 26px) + 1.1rem * 1.35 + 4px); }
-/* 24.11.: Maus auf dem Projektbild: Titel wird schwarz (ohne Invertierung) und zittert */
-html body .vc:hover .cap, html body .vc:focus-visible .cap { mix-blend-mode: normal !important; }
-html body .vc:hover .cap .w, html body .vc:focus-visible .cap .w { color: #000 !important; -webkit-text-fill-color: #000 !important; animation: vib 0.28s linear infinite; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
-@media (prefers-reduced-motion: reduce) { html body .vc:hover .cap .w { animation: none; } }
 </style>
 
 <div id="app"></div>
@@ -843,14 +836,6 @@ html body .vc:hover .cap .w, html body .vc:focus-visible .cap .w { color: #000 !
   }
   window.addEventListener('scroll', ixPlace, { passive: true });
   window.addEventListener('resize', ixPlace);
-  /* 24.11.: museum-Titel liegt vor der ©-Zeile; wenn beide sich berühren würden, rückt die ©-Zeile eine Zeile nach oben */
-  function vcopyFit() {
-    var v = document.querySelector('.vcopy'), c = document.querySelector('.vc[href="#museum-for-abstract-art"] .cap'); if (!v || !c) return;
-    v.classList.remove('up');
-    var a = c.getBoundingClientRect(), b = v.getBoundingClientRect();
-    if (a.right + 16 > b.left && a.left < b.right) v.classList.add('up');
-  }
-  window.addEventListener('resize', vcopyFit);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && indexOpen && !document.querySelector('.lb')) ixSet(false); });
 
   function top(route) {
@@ -1226,7 +1211,7 @@ html body .vc:hover .cap .w, html body .vc:focus-visible .cap .w { color: #000 !
     lastRoute = id;
     if (route !== 'contact') strokes = [];
     if (route !== 'portfolio') document.body.style.backgroundPosition = '';
-    setRc(); hsLayout(); ixPlace(); initBoard(); topDim(); vcopyFit(); setTimeout(vcopyFit, 300);
+    setRc(); hsLayout(); ixPlace(); initBoard(); topDim();
     if (typeof atTop === 'function') { atTop(); setTimeout(atTop, 0); }
     /* 23.11.: new menu bar starts at the size of the old one and grows / shrinks to its own size (e.g. project page -> start page) */
     var tops = app.querySelectorAll('.top'), newFs = tops[0] ? getComputedStyle(tops[0]).fontSize : null;
