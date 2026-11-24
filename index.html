@@ -534,56 +534,6 @@ svg.ar.u { height: 0.886em; vertical-align: -0.22em; }
 #cur.on { opacity: 1; }
 /* 20.11.: Handy und Tablet ohne Maus: kein eigener Mauszeiger (der Pfeil blieb sonst links oben stehen) */
 @media (hover: none), (pointer: coarse) { #cur { display: none !important; } }
-/* 24.11.: Projektseite am Computer: links Titel, Erklärtext, Knöpfe und Copyright (rechtsbündig, Blocksatz), rechts die Galerie senkrecht, leicht versetzt; beide Hälften scrollen getrennt */
-@media (min-width: 701px) {
-  html.ppage, html.ppage body { height: 100%; overflow: hidden; }
-  .wrap.pp { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
-  .wrap.pp > .top { flex: none; }
-  :root { --pgap: clamp(24px, 4vw, 56px); }
-  .plm { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin-top: var(--pgap); }
-  .pl-l, .pl-r { min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; }
-  .pl-l::-webkit-scrollbar, .pl-r::-webkit-scrollbar { display: none; }
-  .pl-l { padding-right: var(--d); display: flex; flex-direction: column; }
-  /* 24.11.: auch die linke Hälfte reicht von ganz oben bis ganz unten, der Text läuft beim Scrollen hinter der Menüleiste durch statt hinter einer weißen Fläche zu verschwinden */
-  .pl-l { position: fixed; top: 0; bottom: 0; left: 0; right: 50%; z-index: 1; padding-top: var(--plt, 130px); padding-left: max(var(--gut), env(safe-area-inset-left, 0px)); }
-  /* 24.11.: Galerie randlos über die ganze rechte Bildschirmhälfte (von der Mitte bis zum rechten Rand) und von ganz oben bis ganz unten: beim Scrollen laufen die Bilder hinter der Menüleiste durch, die sich darüber invertiert */
-  .pl-r { position: fixed; top: 0; bottom: 0; left: 50%; right: 0; z-index: 1; padding: var(--plt, 130px) 0 0; }
-  .wrap.pp > .top { z-index: 5; mix-blend-mode: difference; color: #fff; }
-  .wrap.pp > .top a, .wrap.pp > .top button, .wrap.pp > .top .w, .wrap.pp > .top a:hover .w, .wrap.pp > .top button:hover .w, .wrap.pp > .top a:focus-visible .w, .wrap.pp > .top button:focus-visible .w { color: #fff !important; -webkit-text-fill-color: #fff; }
-  .plm .pinfo { display: block; margin-top: 0; }
-  .plm .pinfo > div { padding: 0 !important; text-align: right; }
-  .plm .pinfo > div + div { margin-top: var(--pgap); } /* 24.11.: Abstand unter Titel/Untertitel/Angaben = Abstand zwischen Menüleiste und Titel */
-  .plm .pinfo h1 { margin-left: auto; }
-  .plm .pinfo p, .plm .body p { margin-left: auto; text-align: justify; text-align-last: right; hyphens: auto; }
-  .plm .pinfo .lines span { display: block; }
-  /* 24.11.: unten links „all projects“ mit ©, unten rechts unter den Bildern „next project“ mit „all rights reserved“; ganz unten gescrollt stehen beide auf derselben Höhe nebeneinander */
-  .plm .pager, .pl-l > footer { display: none !important; }
-  :root { --plg: clamp(20px, 2.4vw, 40px); --plp: clamp(40px, 6vw, 90px); }
-  .plb { display: flex; flex-direction: column; gap: 0; padding-bottom: var(--plg); font-size: 18px; line-height: 1.35; }
-  .plb .cp { font-size: 12px; line-height: 1.35; color: var(--fg); margin-top: var(--plg); }
-  .pl-l > .pinfo { flex-shrink: 0; min-height: calc(100% - var(--plp) - 18px * 1.35 - var(--plg)); } /* 24.11.: bei langen Texten nicht mehr zusammengedrückt, „all projects“ steht immer unter dem Text */ /* „all projects“ sitzt unten im Bild, das © darunter erst nach dem Weiterscrollen */
-  .pl-l > .plb { padding-top: var(--plp); align-items: flex-end; text-align: right; }
-  .pl-r > .plb { padding-left: var(--d); padding-top: clamp(40px, 6vw, 90px); align-items: flex-start; }
-  .pl-r .gs { padding-bottom: 0; }
-  .plm .pager.g2 { display: flex; justify-content: flex-end; gap: calc(var(--d) * 2); margin-top: clamp(32px, 4vw, 56px); }
-  .plm .pager.g2 .next { padding-left: 0; margin-left: 0; text-align: right; }
-  .pl-l > footer.g2 { display: flex; justify-content: flex-end; gap: calc(var(--d) * 2); margin-top: auto; padding-top: clamp(40px, 6vw, 90px); padding-bottom: clamp(20px, 2.4vw, 40px); }
-  .pl-l > footer.g2 > * { padding: 0 !important; text-align: right; }
-  .pl-r .gs { display: block; height: auto; margin-top: 0; overflow: visible; padding: 0 0 clamp(40px, 6vw, 90px); }
-  .pl-r .gs + .gs { margin-top: calc(0.32 * 20vh); }
-  .pl-r .gs-item { height: auto; width: calc(var(--h) * 100%); margin-left: calc(var(--mt) * 100%); margin-top: calc(var(--g) * 20vh); }
-  .pl-r .gs > .gs-item:first-child { margin-top: 0; }
-  .pl-r .gs-item .zoom, .pl-r .gs-item .ph, .pl-r .gs-item .vid { width: 100%; height: auto; }
-  .pl-r .gs-item .im { width: 100%; height: auto; }
-  .pl-r .gs-item[data-zt] .im { width: calc(100% * var(--zs, 1)); }
-  .pl-r .gs-item.gs-q { width: 70%; margin-left: 15%; margin-right: 0; }
-}
-@media (max-width: 700px) {
-  .plm { display: flex; flex-direction: column; }
-  .pl-l, .pl-r { display: contents; }
-  .plb { display: none; }
-  .plm .gs { order: 1; } .plm .pinfo { order: 2; } .plm .gs2 { order: 3; } .plm .pager { order: 4; } .pl-l > footer { order: 5; }
-}
 /* 24.11.: Schrift überall Inter (500); alles, was 17,6 px (1.1rem) war, jetzt 18 px; Copyright-Zeilen 12 px */
 /* 24.11.: Startseite am Computer: Projekttitel läuft rechts unter dem Mauszeiger mit, immer invertiert zum Hintergrund; die Titel links unten auf den Bildern entfallen dafür (auf dem Handy bleiben sie) */
 #ht { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 9998; mix-blend-mode: difference; color: #fff; font-size: 18px; font-weight: 500; line-height: 1.35; white-space: nowrap; opacity: 0; will-change: transform; }
@@ -980,12 +930,8 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     }
     qn = 0; alt = 0;
     var gal2 = p.gal2 ? '<div class="gs gs2" tabindex="-1">' + p.gal2.map(galItem).join('') + '</div>' : ''; /* 19.11.: second horizontal gallery below the links */
-    /* 24.11.: Projektseite am Computer zweigeteilt: links Titel, Text und Knöpfe (eigener Scroll), rechts die Galerie senkrecht (eigener Scroll); am Handy wie bisher */
-    return '<main class="plm"><div class="pl-l"><section class="pinfo"><div>' + left + '</div><div>' + right + '</div></section>' +
-      '<nav class="pager g2" aria-label="projects"><a href="#portfolio">' + arr('l') + ' ' + words(ui('overview')) + '</a><a class="next" href="#' + next.id + '">' + words(ui('nextp')) + ' ' + arr('r') + '</a></nav>' +
-      '<div class="plb"><a href="#portfolio">' + arr('l') + ' ' + words(ui('overview')) + '</a><span class="cp">©2026 ludwig anton arends</span></div></div>' + /* 24.11.: © wieder da, liegt aber unterhalb des Bildschirms: erst beim Weiterscrollen sichtbar */
-      '<div class="pl-r"><div class="gs" tabindex="-1">' + gal + '</div>' + gal2 +
-      '<div class="plb"><a class="next" href="#' + next.id + '">' + words(ui('nextp')) + ' ' + arr('r') + '</a><span class="cp">' + ui('rights') + '</span></div></div></main>';
+    return '<main><div class="gs" tabindex="-1">' + gal + '</div><section class="pinfo"><div>' + left + '</div><div>' + right + '</div></section>' + gal2 +
+      '<nav class="pager g2" aria-label="projects"><a href="#portfolio">' + arr('l') + ' ' + words(ui('overview')) + '</a><a class="next" href="#' + next.id + '">' + words(ui('nextp')) + ' ' + arr('r') + '</a></nav></main>';
   }
 
   function rows(list) {
@@ -1111,9 +1057,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     [].forEach.call(document.querySelectorAll('video.scrub'), function (v) {
       if (!v.duration || isNaN(v.duration)) return;
       var r = v.getBoundingClientRect(); if (!r.width) return;
-      var p = (W - r.left) / (W + r.width);
-      if (v.closest('.pl-r') && window.innerWidth > 700) { var Hh = window.innerHeight; p = (Hh - r.top) / (Hh + r.height); } /* 24.11.: vertical gallery: frame follows the up/down position */
-      p = Math.max(0, Math.min(1, p));
+      var p = (W - r.left) / (W + r.width); p = Math.max(0, Math.min(1, p));
       var t = p * Math.max(0, v.duration - 0.05);
       if (Math.abs(v.currentTime - t) > 0.02) { try { if (v.fastSeek && Math.abs(v.currentTime - t) > 1) v.fastSeek(t); else v.currentTime = t; } catch (x) {} }
     });
@@ -1255,22 +1199,6 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   document.addEventListener('mouseout', function (e) { dimHover(e, false); });
   document.addEventListener('focusin', function (e) { dimHover(e, true); });
   document.addEventListener('focusout', function (e) { dimHover(e, false); });
-  /* 24.11.: when the gallery on the right reaches its end, the text on the left follows up the last stretch, so the two buttons and the two copyright lines end up side by side */
-  document.addEventListener('scroll', function (e) {
-    var r = e.target; if (!r.classList || !r.classList.contains('pl-r') || window.innerWidth <= 700) return;
-    var l = document.querySelector('.pl-l'); if (!l) return;
-    var rb = r.querySelector('.plb'), ra = rb && rb.querySelector('a'), rc = rb && rb.querySelector('.cp'); if (!ra || !rc) return;
-    var D = rc.getBoundingClientRect().bottom - ra.getBoundingClientRect().bottom;
-    var rMax = r.scrollHeight - r.clientHeight, lMax = l.scrollHeight - l.clientHeight, rest = rMax - r.scrollTop;
-    if (lMax <= 0) return;
-    var t = lMax - Math.min(rest, D);
-    if (rest < D) { if (l.scrollTop < t || l._fol) { l.scrollTop = t; l._fol = true; } }
-    else if (l._fol) { if (l.scrollTop > t) l.scrollTop = t; l._fol = false; } /* 24.11.: scrolling back up on the right takes the left side back down with it, the © disappears again */
-  }, true);
-  /* 24.11.: the right half (gallery) starts at the same height as the text on the left */
-  function plTop() { var l = document.querySelector('.plm'); if (l) document.documentElement.style.setProperty('--plt', Math.round(l.getBoundingClientRect().top + (window.scrollY || 0)) + 'px'); }
-  window.addEventListener('resize', plTop);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(plTop);
   function render() {
     var id = (location.hash || '').slice(1) || 'portfolio';
     var idx = -1;
@@ -1282,10 +1210,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'de'); /* 19.11.: deutsche Seite dunkel, englische Seite weiß */
     var oldTop = document.querySelector('.top:not(.dim):not(.blk)'), oldFs = oldTop ? getComputedStyle(oldTop).fontSize : null;
     var main = route === 'project' ? project(idx) : route === 'about' ? about() : route === 'contact' ? contact() : route === 'press' ? pressPage(id) : home();
-    app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : route === 'project' ? ' pp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
-    document.documentElement.classList.toggle('ppage', route === 'project');
-    if (route === 'project') { var plf = app.querySelector('.wrap.pp > footer'), pll = app.querySelector('.pl-l'); if (plf && pll) pll.appendChild(plf); } /* copyright line under the buttons in the left half */
-    plTop();
+    app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
     setTimeout(gsZoom, 0); setTimeout(gsZoom, 400);
     document.title = route === 'project' ? P[idx].t + ' – ludwig anton arends' : route === 'press' ? 'press release – ludwig anton arends' : 'ludwig anton arends';
     if (lastRoute !== null && lastRoute !== id) window.scrollTo(0, 0);
