@@ -561,7 +561,7 @@ svg.ar.u { height: 0.886em; vertical-align: -0.22em; }
   :root { --plg: clamp(20px, 2.4vw, 40px); --plp: clamp(40px, 6vw, 90px); }
   .plb { display: flex; flex-direction: column; gap: 0; padding-bottom: var(--plg); font-size: 18px; line-height: 1.35; }
   .plb .cp { font-size: 12px; line-height: 1.35; color: var(--fg); margin-top: var(--plg); }
-  .pl-l > .pinfo { min-height: calc(100% - var(--plp) - 18px * 1.35 - var(--plg)); } /* „all projects“ sitzt unten im Bild, das © darunter erst nach dem Weiterscrollen */
+  .pl-l > .pinfo { flex-shrink: 0; min-height: calc(100% - var(--plp) - 18px * 1.35 - var(--plg)); } /* 24.11.: bei langen Texten nicht mehr zusammengedrückt, „all projects“ steht immer unter dem Text */ /* „all projects“ sitzt unten im Bild, das © darunter erst nach dem Weiterscrollen */
   .pl-l > .plb { padding-top: var(--plp); align-items: flex-end; text-align: right; }
   .pl-r > .plb { padding-left: var(--d); padding-top: clamp(40px, 6vw, 90px); align-items: flex-start; }
   .pl-r .gs { padding-bottom: 0; }
@@ -1262,7 +1262,10 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     var rb = r.querySelector('.plb'), ra = rb && rb.querySelector('a'), rc = rb && rb.querySelector('.cp'); if (!ra || !rc) return;
     var D = rc.getBoundingClientRect().bottom - ra.getBoundingClientRect().bottom;
     var rMax = r.scrollHeight - r.clientHeight, lMax = l.scrollHeight - l.clientHeight, rest = rMax - r.scrollTop;
-    if (rest < D && lMax > 0) { var t = lMax - rest; if (l.scrollTop < t) l.scrollTop = t; }
+    if (lMax <= 0) return;
+    var t = lMax - Math.min(rest, D);
+    if (rest < D) { if (l.scrollTop < t || l._fol) { l.scrollTop = t; l._fol = true; } }
+    else if (l._fol) { if (l.scrollTop > t) l.scrollTop = t; l._fol = false; } /* 24.11.: scrolling back up on the right takes the left side back down with it, the © disappears again */
   }, true);
   /* 24.11.: the right half (gallery) starts at the same height as the text on the left */
   function plTop() { var l = document.querySelector('.plm'); if (l) document.documentElement.style.setProperty('--plt', Math.round(l.getBoundingClientRect().top + (window.scrollY || 0)) + 'px'); }
