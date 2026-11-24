@@ -555,9 +555,11 @@ svg.ar.u { height: 0.886em; vertical-align: -0.22em; }
   .plm .pinfo .lines span { display: block; }
   /* 24.11.: unten links „all projects“ mit ©, unten rechts unter den Bildern „next project“ mit „all rights reserved“; ganz unten gescrollt stehen beide auf derselben Höhe nebeneinander */
   .plm .pager, .pl-l > footer { display: none !important; }
-  .plb { display: flex; flex-direction: column; gap: 0.9em; padding-bottom: clamp(20px, 2.4vw, 40px); font-size: 18px; line-height: 1.35; }
-  .plb .cp { font-size: 12px; line-height: 1.35; color: var(--fg); }
-  .pl-l > .plb { margin-top: auto; padding-top: clamp(40px, 6vw, 90px); align-items: flex-end; text-align: right; }
+  :root { --plg: clamp(20px, 2.4vw, 40px); --plp: clamp(40px, 6vw, 90px); }
+  .plb { display: flex; flex-direction: column; gap: 0; padding-bottom: var(--plg); font-size: 18px; line-height: 1.35; }
+  .plb .cp { font-size: 12px; line-height: 1.35; color: var(--fg); margin-top: var(--plg); }
+  .pl-l > .pinfo { min-height: calc(100% - var(--plp) - 18px * 1.35 - var(--plg)); } /* „all projects“ sitzt unten im Bild, das © darunter erst nach dem Weiterscrollen */
+  .pl-l > .plb { padding-top: var(--plp); align-items: flex-end; text-align: right; }
   .pl-r > .plb { padding-left: var(--d); padding-top: clamp(40px, 6vw, 90px); align-items: flex-start; }
   .pl-r .gs { padding-bottom: 0; }
   .plm .pager.g2 { display: flex; justify-content: flex-end; gap: calc(var(--d) * 2); margin-top: clamp(32px, 4vw, 56px); }
@@ -978,9 +980,9 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     /* 24.11.: Projektseite am Computer zweigeteilt: links Titel, Text und Knöpfe (eigener Scroll), rechts die Galerie senkrecht (eigener Scroll); am Handy wie bisher */
     return '<main class="plm"><div class="pl-l"><section class="pinfo"><div>' + left + '</div><div>' + right + '</div></section>' +
       '<nav class="pager g2" aria-label="projects"><a href="#portfolio">' + arr('l') + ' ' + words(ui('overview')) + '</a><a class="next" href="#' + next.id + '">' + words(ui('nextp')) + ' ' + arr('r') + '</a></nav>' +
-      '<div class="plb"><a href="#portfolio">' + arr('l') + ' ' + words(ui('overview')) + '</a></div></div>' + /* 24.11.: © und all rights reserved auf den Projektseiten entfernt */
+      '<div class="plb"><a href="#portfolio">' + arr('l') + ' ' + words(ui('overview')) + '</a><span class="cp">©2026 ludwig anton arends</span></div></div>' + /* 24.11.: © wieder da, liegt aber unterhalb des Bildschirms: erst beim Weiterscrollen sichtbar */
       '<div class="pl-r"><div class="gs" tabindex="-1">' + gal + '</div>' + gal2 +
-      '<div class="plb"><a class="next" href="#' + next.id + '">' + words(ui('nextp')) + ' ' + arr('r') + '</a></div></div></main>';
+      '<div class="plb"><a class="next" href="#' + next.id + '">' + words(ui('nextp')) + ' ' + arr('r') + '</a><span class="cp">' + ui('rights') + '</span></div></div></main>';
   }
 
   function rows(list) {
@@ -1250,6 +1252,15 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
   document.addEventListener('mouseout', function (e) { dimHover(e, false); });
   document.addEventListener('focusin', function (e) { dimHover(e, true); });
   document.addEventListener('focusout', function (e) { dimHover(e, false); });
+  /* 24.11.: when the gallery on the right reaches its end, the text on the left follows up the last stretch, so the two buttons and the two copyright lines end up side by side */
+  document.addEventListener('scroll', function (e) {
+    var r = e.target; if (!r.classList || !r.classList.contains('pl-r') || window.innerWidth <= 700) return;
+    var l = document.querySelector('.pl-l'); if (!l) return;
+    var rb = r.querySelector('.plb'), ra = rb && rb.querySelector('a'), rc = rb && rb.querySelector('.cp'); if (!ra || !rc) return;
+    var D = rc.getBoundingClientRect().bottom - ra.getBoundingClientRect().bottom;
+    var rMax = r.scrollHeight - r.clientHeight, lMax = l.scrollHeight - l.clientHeight, rest = rMax - r.scrollTop;
+    if (rest < D && lMax > 0) { var t = lMax - rest; if (l.scrollTop < t) l.scrollTop = t; }
+  }, true);
   /* 24.11.: the right half (gallery) starts at the same height as the text on the left */
   function plTop() { var l = document.querySelector('.pl-l'); if (l) document.documentElement.style.setProperty('--plt', Math.round(l.getBoundingClientRect().top + (window.scrollY || 0)) + 'px'); }
   window.addEventListener('resize', plTop);
@@ -1265,7 +1276,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     document.documentElement.classList.toggle('dk', route !== 'portfolio' && lang === 'de'); /* 19.11.: deutsche Seite dunkel, englische Seite weiß */
     var oldTop = document.querySelector('.top:not(.dim):not(.blk)'), oldFs = oldTop ? getComputedStyle(oldTop).fontSize : null;
     var main = route === 'project' ? project(idx) : route === 'about' ? about() : route === 'contact' ? contact() : route === 'press' ? pressPage(id) : home();
-    app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : route === 'project' ? ' pp' : '') + '">' + top(route) + main + (route === 'portfolio' || route === 'project' ? '' : footer()) + '</div>' + ixPanel();
+    app.innerHTML = '<div class="wrap' + (route === 'portfolio' ? ' hsp' : route === 'contact' ? ' ctp' : route === 'project' ? ' pp' : '') + '">' + top(route) + main + (route === 'portfolio' ? '' : footer()) + '</div>' + ixPanel();
     document.documentElement.classList.toggle('ppage', route === 'project');
     if (route === 'project') { var plf = app.querySelector('.wrap.pp > footer'), pll = app.querySelector('.pl-l'); if (plf && pll) pll.appendChild(plf); } /* copyright line under the buttons in the left half */
     plTop();
