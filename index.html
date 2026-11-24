@@ -534,6 +534,11 @@ svg.ar.u { height: 0.886em; vertical-align: -0.22em; }
 #cur.on { opacity: 1; }
 /* 20.11.: Handy und Tablet ohne Maus: kein eigener Mauszeiger (der Pfeil blieb sonst links oben stehen) */
 @media (hover: none), (pointer: coarse) { #cur { display: none !important; } }
+/* 24.11.: Startseite am Computer: Projekttitel läuft rechts unter dem Mauszeiger mit, immer invertiert zum Hintergrund; die Titel links unten auf den Bildern entfallen dafür (auf dem Handy bleiben sie) */
+#ht { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 9998; mix-blend-mode: difference; color: #fff; font-size: 1.1rem; font-weight: 500; line-height: 1.35; white-space: nowrap; opacity: 0; will-change: transform; }
+#ht.on { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .vc .cap { display: none; } }
+@media (hover: none), (pointer: coarse) { #ht { display: none !important; } }
 /* 19.11.: deutsche Seite: Projektseiten, about und kontakt fast schwarz (#070708), weiße Zeichnungen im Negativ, Großansicht im weißen Original */
 html.dk { --bg: #070708; --fg: #fff; --muted: #8e8e8e; --ph-a: #1d1e20; --ph-b: #2e3032; color-scheme: dark; }
 html.dk .wrap:not(.hsp) .top a:hover .w, html.dk .wrap:not(.hsp) .top button:hover .w, html.dk .wrap:not(.hsp) .top a:focus-visible .w, html.dk .wrap:not(.hsp) .top button:focus-visible .w, html.dk .card .am:hover .w { color: #fff; }
@@ -881,7 +886,7 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     var h3 = hp.indexOf('student-housing'), h4 = hp.indexOf('renaissance-theater'); /* 19.11.: student housing and renaissance theater swapped on the home page */
     if (h3 > -1 && h4 > -1) { var hu = HO[h3]; HO[h3] = HO[h4]; HO[h4] = hu; }
     var cells = HO.map(function (p, i) {
-      return '<a class="vc' + ((p.id === 'cascading-water' || p.id === 'student-housing') ? ' vr' : '' + (p.id === 'renaissance-theater' ? ' vz' : '') + (p.id === 'pedestrian-bridge' ? ' vl' : '')) + '" href="#' + p.id + '">' + (p.cover ? img(p.cover, p.cw, p.ch, p.t) : ph(p.kind, i + 1, p.ar)) + '<span class="cap">' + words(p.t + ', ' + p.y) + '</span></a>';
+      return '<a class="vc' + ((p.id === 'cascading-water' || p.id === 'student-housing') ? ' vr' : '' + (p.id === 'renaissance-theater' ? ' vz' : '') + (p.id === 'pedestrian-bridge' ? ' vl' : '')) + '" href="#' + p.id + '" data-ht="' + String(p.t + ', ' + p.y).replace(/"/g, '&quot;') + '">' + (p.cover ? img(p.cover, p.cw, p.ch, p.t) : ph(p.kind, i + 1, p.ar)) + '<span class="cap">' + words(p.t + ', ' + p.y) + '</span></a>';
     }).join('');
     var endc = [0, 1].map(function (q) { var p = P[q]; return '<div class="ve">' + (p.cover ? img(p.cover, p.cw, p.ch, '') : '') + '</div>'; }).join('');
     return '<main class="vg">' + cells + '<div class="vcopy"><span>©2026 ludwig anton arends</span><span>' + ui('rights') + '</span></div></main>';
@@ -1422,14 +1427,25 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     /* 19.11.: position written straight away on every move (also the raw, faster events where the browser has them), and kept in place
        while the page or a gallery scrolls, so the arrow no longer lags or jumps */
     var lx = -100, ly = -100, nat = false;
-    function place(x, y) { lx = x; ly = y; cur.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)'; }
+    var ht = document.createElement('div'); ht.id = 'ht'; ht.setAttribute('aria-hidden', 'true'); document.body.appendChild(ht);
+    function label(t) { /* 24.11.: title of the project under the mouse, right below the arrow */
+      var c = t && t.closest ? t.closest('.vc[data-ht]') : null;
+      if (c && (document.body.classList.contains('ixopen') || (t.closest('.top, .ix, .lb')))) c = null;
+      if (c) { var v = c.getAttribute('data-ht'); if (ht.textContent !== v) ht.textContent = v; }
+      ht.classList.toggle('on', !!c && cur.classList.contains('on'));
+    }
+    function place(x, y) { lx = x; ly = y; cur.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)'; ht.style.transform = 'translate3d(' + (x + 22) + 'px,' + (y + 10) + 'px,0)'; }
     function mv(e) {
       if (e.pointerType && e.pointerType !== 'mouse') return;
       touch = false;
       var t = e.target, native = !!(t && t.closest && t.closest('canvas, input, textarea'));
       place(e.clientX, e.clientY);
       if (native !== nat || !cur.classList.contains('on') && !native) { nat = native; cur.classList.toggle('on', !native); root.classList.toggle('curon', !native); }
+      label(t);
     }
+    function relabel() { if (lx > -100) label(document.elementFromPoint(lx, ly)); }
+    window.addEventListener('scroll', relabel, { passive: true });
+    window.addEventListener('hashchange', function () { ht.classList.remove('on'); setTimeout(relabel, 60); });
     document.addEventListener('pointermove', mv, { capture: true, passive: true });
     if ('onpointerrawupdate' in window) document.addEventListener('pointerrawupdate', mv, { capture: true, passive: true });
     /* 20.11.: Tippen auf dem Handy löst auch ein mouseover aus; den Pfeil nur zeigen, wenn wirklich eine Maus benutzt wird */
@@ -1437,8 +1453,9 @@ html.curon, html.curon *:not(canvas):not(input):not(textarea) { cursor: url("dat
     document.addEventListener('pointerdown', function (e) { touch = e.pointerType !== 'mouse'; if (touch) { cur.classList.remove('on'); root.classList.remove('curon'); } }, true);
     document.addEventListener('touchstart', function () { touch = true; cur.classList.remove('on'); root.classList.remove('curon'); }, { capture: true, passive: true });
     document.addEventListener('mouseover', function (e) { if (!nat && !touch && lx > -100) { root.classList.add('curon'); cur.classList.add('on'); } }, true);
-    root.addEventListener('mouseleave', function () { cur.classList.remove('on'); });
-    window.addEventListener('blur', function () { cur.classList.remove('on'); });
+    root.addEventListener('mouseleave', function () { cur.classList.remove('on'); ht.classList.remove('on'); });
+    window.addEventListener('blur', function () { cur.classList.remove('on'); ht.classList.remove('on'); });
+    document.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') ht.classList.remove('on'); }, true);
   })();
   /* 18.11.: Safari keeps the hover state when another app (Mail) comes to the front, so stop all wobbling while the window is in the background,
      and after a click the clicked line only wobbles again once the mouse has left it and come back */
